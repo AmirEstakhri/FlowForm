@@ -100,14 +100,21 @@ class Form(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="forms", null=True)
     users = models.ManyToManyField('app.CustomUser', blank=True)  # view-only users section
 
-
     sender_name = models.CharField(max_length=255)
     prioritize = models.BooleanField(default=False)
     priority = models.CharField(max_length=100, choices=[('High', 'High'), ('Medium', 'Medium'), ('Low', 'Low')], default='Medium')
 
     # Foreign key to CustomUser for assigned manager
     assigned_managers = models.ManyToManyField(CustomUser, related_name="assigned_forms", blank=True, limit_choices_to={'role': 'manager'})
-    added_users = models.ManyToManyField(CustomUser, related_name="viewable_forms", blank=True, limit_choices_to={'role': 'user'})
+    
+    # Replace `added_users` with `assigned_users`
+    assigned_users = models.ManyToManyField(
+        CustomUser, 
+        related_name="viewable_forms", 
+        blank=True, 
+        limit_choices_to={'role': 'user'}
+    )
+
     allowed_managers = models.ManyToManyField(CustomUser, related_name='allowed_forms', blank=True)  # Add this line
 
     sender = models.CharField(max_length=100)

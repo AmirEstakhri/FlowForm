@@ -3,11 +3,19 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from django.db.models import Q
-
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from .models import Form, FormVersion, CustomUser, Tag, Category  # Import relevant models
 from .forms import FormCreationForm, LoginForm  # Import relevant forms
 from app.utils import is_manager  # Assuming `is_manager` is a utility function to check roles
 import logging
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
+
 # Check if user is a manager
 def is_manager(user):
     return user.role == 'manager'
@@ -78,6 +86,11 @@ def create_form(request):
                 if assigned_managers:
                     form_instance.assigned_managers.set(assigned_managers)  # Set ManyToManyField assigned_managers
 
+                # Handling Many-to-Many relationship for added users (users who can view the form)
+                added_users = form.cleaned_data.get('added_users')
+                if added_users:
+                    form_instance.added_users.set(added_users)  # Set ManyToManyField added_users
+
                 form_instance.save()  # Save again to commit ManyToMany and ForeignKey changes
 
                 # Provide a success message
@@ -112,23 +125,28 @@ def create_form(request):
 
  # If you have a custom form, otherwise use Django's default authentication form.
 
+
+
 def user_login(request):
     if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        # Use AuthenticationForm to handle login
+        form = AuthenticationForm(request, data=request.POST)
 
-        # Authenticate the user
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            # If user exists, log them in
+        if form.is_valid():
+            # Authenticate the user
+            user = form.get_user()
             login(request, user)
-            return redirect('home')  # Redirect to the home page or any other page
+            messages.success(request, "Login successful!")
+            return redirect('home')  # Redirect to the home page or any other page after successful login
         else:
-            # If authentication fails
-            messages.error(request, "Invalid username or password")
-    
-    return render(request, 'login.html')  # Render the login template
+            # If authentication fails or form is invalid
+            messages.error(request, "Invalid username or password.")
+    else:
+        # Initialize an empty form if it's a GET request
+        form = AuthenticationForm()
+
+    return render(request, 'login.html', {'form': form})  # Pass the form to the template
+
 
 
 # views.py
@@ -143,39 +161,62 @@ def user_list(request):
 
 
 
+from django.db.models import Q
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Form
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from .models import Form
+
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 @login_required
 def form_list(request):
     user = request.user
 
+    # For users with the 'user-access-to-all-users-with-role-user' sub-role
     if user.role == 'user':
         if user.sub_role == 'user-access-to-all-users-with-role-user':
+            # Include forms where the user is either the sender or an assigned user
             forms = Form.objects.filter(
                 Q(sender=user) | 
-                Q(added_users=user)  # Correct field based on traceback
+                Q(assigned_users=user)  # Using assigned_users field
             ).distinct()
         else:
+            # For regular users, only show forms where they are the sender
             forms = Form.objects.filter(sender=user).distinct()
 
+    # For managers
     elif user.role == 'manager':
+        # No sub-role check is needed for managers; they can access forms where they are assigned as a manager
         if user.sub_role == 'manager-access-to-all-users-with-role-manager':
+            # Managers with sub-role can access forms where they are an assigned manager, allowed manager, or if the sender is a user
             forms = Form.objects.filter(
-                Q(assigned_managers=user) |  # Correct field based on traceback
-                Q(allowed_managers=user) |  # Using allowed_managers field
-                Q(sender__role='user')
+                Q(assigned_managers=user) |  # Forms where the user is assigned as a manager
+                Q(allowed_managers=user) |  # Forms where the user is allowed as a manager
+                Q(sender__role='user')  # Or forms sent by a user
             ).distinct()
         else:
+            # Managers without sub-role can still view forms where they are assigned as a manager or allowed as a manager
             forms = Form.objects.filter(
                 Q(assigned_managers=user) |
                 Q(allowed_managers=user)  # Using allowed_managers field
             ).distinct()
 
-    else:  # Admin or other roles
+    # Admin or other roles
+    else:
+        # Admins see all forms
         forms = Form.objects.all()
 
-    # Prefetch related fields to optimize queries for tags and categories
-    forms = forms.prefetch_related('tags', 'categories')
+    # Prefetch related fields to optimize queries (tags and category)
+    forms = forms.prefetch_related('tags', 'category')  # Correct 'category' not 'categories'
 
     return render(request, 'form/form_list.html', {'forms': forms})
+
 
 
 
@@ -234,21 +275,25 @@ def edit_form(request, form_id):
 
 
 
+
+
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         
         if form.is_valid():
-            # Authenticate the user
+            # Authenticate the user and log them in
             user = form.get_user()
             login(request, user)
             messages.success(request, 'Login successful!')
             return redirect('homepage')  # Redirect to the home page or any page after successful login
         else:
-            messages.error(request, 'Invalid username or password')
+            # Display error message if form is not valid
+            messages.error(request, 'Invalid username or password.')
     else:
         form = AuthenticationForm()
 
+    # Render the login page with the form
     return render(request, 'login/login.html', {'form': form})
 
 @login_required

@@ -17,6 +17,12 @@ class FormCreationForm(forms.ModelForm):
 
     receiver_signature = forms.CharField(required=False, label="Receiver's Signature")
     sender = forms.CharField(max_length=100, disabled=True, label="Sender")  # Disabled sender field, auto-filled
+    assigned_users = forms.ModelMultipleChoiceField(
+        queryset=CustomUser.objects.all(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-control'}),
+        required=False,  # If this is optional
+        label="Assigned Users"
+    )
 
     assigned_managers = forms.ModelMultipleChoiceField(
         queryset=CustomUser.objects.filter(role='manager'),
@@ -36,7 +42,7 @@ class FormCreationForm(forms.ModelForm):
         model = Form
         fields = [
             'title', 'sender', 'sender_signature', 'receiver', 'receiver_signature',
-            'content', 'priority', 'tags', 'categories', 'assigned_managers', 'allowed_managers'
+            'content', 'priority', 'tags', 'categories', 'assigned_users', 'assigned_managers', 'allowed_managers'
         ]
 
     def clean_assigned_managers(self):
@@ -77,23 +83,25 @@ class FormCreationForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        
-    # Save the form instance without committing to get the object
+        # Save the form instance without committing to get the object
         form_instance = super().save(commit=False)
 
-    # Ensure the sender is set
+        # Ensure the sender is set
         if not form_instance.sender:
             form_instance.sender = self.initial.get('sender')
 
-    # Save the instance to assign an ID
+        # Save the instance to assign an ID
         form_instance.save()
 
-    # Many-to-many fields can now be set
+        # Many-to-many fields can now be set
         if self.cleaned_data.get('assigned_managers'):
             form_instance.assigned_managers.set(self.cleaned_data['assigned_managers'])
 
         if self.cleaned_data.get('allowed_managers'):
             form_instance.allowed_managers.set(self.cleaned_data['allowed_managers'])
+
+        if self.cleaned_data.get('assigned_users'):
+            form_instance.assigned_users.set(self.cleaned_data['assigned_users'])
 
         # If categories exist, set them
         category = self.cleaned_data.get('categories')
@@ -105,7 +113,6 @@ class FormCreationForm(forms.ModelForm):
             form_instance.save()
 
         return form_instance
-
 
 
 class LoginForm(forms.Form):
