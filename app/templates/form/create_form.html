@@ -242,42 +242,48 @@
             listItem.innerHTML = userName + ' <button class="remove-user-btn" data-user-id="' + userId + '">Remove</button>';
             assignedUserList.appendChild(listItem);
     
+            // Remove from dropdown
+            selectedUser.remove();
+    
             // Add hidden input field for form submission
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'assigned_users'; // Adjust according to your backend
             hiddenInput.value = userId;
             document.querySelector('form').appendChild(hiddenInput);
-    
-            // Remove from dropdown
-            selectedUser.remove();
         });
-
-        // Remove Manager from the assigned list
-        document.getElementById('assigned_managers_display').addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-manager-btn')) {
-                const managerId = e.target.getAttribute('data-manager-id');
-                e.target.parentElement.remove();
     
-                // Optionally, you can re-add the manager to the available dropdown list
-                const managerOption = document.querySelector('#added_managers option[value="' + managerId + '"]');
-                if (managerOption) {
-                    managerOption.style.display = 'block';
-                }
+        // Remove Manager from the assigned list
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('remove-manager-btn')) {
+                const managerId = event.target.getAttribute('data-manager-id');
+    
+                // Remove from assigned list
+                event.target.parentElement.remove();
+    
+                // Re-add manager option to the dropdown
+                const managerSelect = document.getElementById('added_managers');
+                const option = document.createElement('option');
+                option.value = managerId;
+                option.textContent = event.target.parentElement.textContent.replace(' Remove', '');
+                managerSelect.appendChild(option);
             }
         });
 
         // Remove User from the assigned list
-        document.getElementById('assigned_users_display').addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-user-btn')) {
-                const userId = e.target.getAttribute('data-user-id');
-                e.target.parentElement.remove();
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('remove-user-btn')) {
+                const userId = event.target.getAttribute('data-user-id');
     
-                // Optionally, you can re-add the user to the available dropdown list
-                const userOption = document.querySelector('#added_users option[value="' + userId + '"]');
-                if (userOption) {
-                    userOption.style.display = 'block';
-                }
+                // Remove from assigned list
+                event.target.parentElement.remove();
+    
+                // Re-add user option to the dropdown
+                const userSelect = document.getElementById('added_users');
+                const option = document.createElement('option');
+                option.value = userId;
+                option.textContent = event.target.parentElement.textContent.replace(' Remove', '');
+                userSelect.appendChild(option);
             }
         });
     </script>
