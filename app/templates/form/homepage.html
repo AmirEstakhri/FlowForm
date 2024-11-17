@@ -1,0 +1,20 @@
+<!-- app/templates/form/homepage.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h1>Welcome to the Form Management System</h1>
+    <ul>
+        <li><a href="{% url 'create_form' %}">Create a New Form</a></li>
+        <li><a href="{% url 'form_list' %}">View All Forms</a></li>
+        <li><a href="{% url 'admin:index' %}">Admin Dashboard</a></li>
+    </ul>
+    <p>Welcome, {{ user.username }}! Use the links above to navigate.</p>
+</body>
+</html>

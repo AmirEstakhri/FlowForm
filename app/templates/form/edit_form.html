@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Form</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Form</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" value="{{ form.title }}" {% if form.title.disabled %}disabled{% endif %} required>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" rows="4" {% if form.content.disabled %}disabled{% endif %}>{{ form.content }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority" {% if form.priority.disabled %}disabled{% endif %} required>
+                    <option value="high" {% if form.priority == 'high' %}selected{% endif %}>High</option>
+                    <option value="medium" {% if form.priority == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="low" {% if form.priority == 'low' %}selected{% endif %}>Low</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="assigned_manager">Assigned Manager:</label>
+                <select id="assigned_manager" name="assigned_manager" required {% if form.assigned_manager.disabled %}disabled{% endif %}>
+                    {% for manager in form.assigned_manager.field.queryset %}
+                        <option value="{{ manager.id }}" {% if form.assigned_manager.value == manager.id %}selected{% endif %}>{{ manager.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="allowed_managers">Other Managers:</label>
+                <select id="allowed_managers" name="allowed_managers" multiple {% if form.allowed_managers.disabled %}disabled{% endif %}>
+                    {% for manager in form.allowed_managers.field.queryset %}
+                        <option value="{{ manager.id }}" {% if manager.id in form.allowed_managers.value %}selected{% endif %}>{{ manager.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'form_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

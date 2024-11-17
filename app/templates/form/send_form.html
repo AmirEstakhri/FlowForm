@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Send Form{% endblock %}
+
+{% block content %}
+<h2>Send Form: {{ form.title }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <!-- Auto-filled sender name -->
+    <input type="hidden" name="sender_name" value="{{ user.username }}" />
+
+    <label for="receiver">Receiver</label>
+    <input type="text" name="receiver" required><br>
+
+    <button type="submit">Send Form</button>
+</form>
+
+{% if user.role == 'manager' %}
+    <p>You cannot send forms to users.</p>
+{% endif %}
+
+{% endblock %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Form</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Send Form</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="form-details">
+            <p><strong>Title:</strong> {{ form.title }}</p>
+            <p><strong>Sender's Signature:</strong> {{ form.sender_signature }}</p>
+            <p><strong>Receiver:</strong> {{ form.receiver }}</p>
+            <p><strong>Content:</strong> {{ form.content }}</p>
+            <p><strong>Priority:</strong> {{ form.priority }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Send Form</button>
+            <a href="{% url 'form_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
+

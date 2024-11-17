@@ -1,0 +1,253 @@
+{% load custom_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Form</title>
+    <!-- Add styles here if needed -->
+</head>
+<body>
+
+    <div class="container">
+        <h1>Create a New Form</h1>
+
+        <!-- Displaying Success/Error Messages -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <!-- Form Fields -->
+            <div class="form-group">
+                <label for="title">Title:</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="alert error">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="sender_signature">Sender's Signature:</label>
+                {{ form.sender_signature }}
+                {% if form.sender_signature.errors %}
+                    <div class="alert error">{{ form.sender_signature.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="receiver">Receiver:</label>
+                <input type="text" id="receiver" name="receiver" class="form-control" readonly />
+                {% if form.receiver.errors %}
+                    <div class="alert error">{{ form.receiver.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="content">Content:</label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                    <div class="alert error">{{ form.content.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                {{ form.priority }}
+                {% if form.priority.errors %}
+                    <div class="alert error">{{ form.priority.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="tags">Tags:</label>
+                <div id="id_tags" class="tags-checkboxes">
+                    {% for tag in tags %}
+                        <label>
+                            <input type="checkbox" name="tags" value="{{ tag.id }}">
+                            {{ tag.name }}
+                        </label>
+                    {% endfor %}
+                </div>
+                {% if form.tags.errors %}
+                    <div class="alert alert-danger mt-2">{{ form.tags.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="categories">Categories:</label>
+                <select id="id_categories" name="categories" class="form-control">
+                    <option value="" disabled selected>Select a category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.categories.errors %}
+                    <div class="alert alert-danger mt-2">{{ form.categories.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Manager Search Section -->
+            <div class="form-group">
+                <label for="manager_search">Search for Managers:</label>
+                <input type="text" id="manager_search" placeholder="Search managers..." class="form-control">
+                <button type="button" id="search_manager_btn" class="btn btn-primary">Search</button>
+            </div>
+
+            <!-- Manager Selection -->
+            <div class="form-group">
+                <label for="added_managers">Add Managers:</label>
+                <select id="added_managers" name="added_managers" class="form-control" multiple>
+                    {% for manager in all_managers %}
+                        <option value="{{ manager.id }}" class="manager-item">{{ manager.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn btn-primary" id="add_manager_btn">Add Manager</button>
+            </div>
+
+            <!-- User Section (Visible Only if User Has Sub-Role) -->
+            {% if request.user|has_subrole:"user-access-to-all-users-with-role-user" %}
+            <div class="form-group">
+                <label for="user_search">Search for Users:</label>
+                <input type="text" id="user_search" placeholder="Search users..." class="form-control">
+                <button type="button" id="search_user_btn" class="btn btn-primary">Search</button>
+            </div>
+
+            <!-- User Selection -->
+            <div class="form-group">
+                <label for="added_users">Add Users:</label>
+                <select id="added_users" name="added_users" class="form-control" multiple>
+                    {% for user in all_users %}
+                        <option value="{{ user.id }}" class="user-item">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn btn-primary" id="add_user_btn">Add User</button>
+            </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Create Form</button>
+        </form>
+
+        <!-- Assigned Managers Display -->
+        <div id="assigned_managers_list" class="assigned-list">
+            <h3>Assigned Managers:</h3>
+            <ul id="assigned_managers_display">
+                {% for manager in assigned_managers %}
+                    <li>
+                        {{ manager.username }} 
+                        <button class="remove-manager-btn" data-manager-id="{{ manager.id }}">Remove</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- View Users Display (If User Has the Correct Role/Sub-Role) -->
+        {% if request.user|has_subrole:"view-all-users" %}
+        <div id="view_users_list" class="assigned-list">
+            <h3>All Users:</h3>
+            <ul id="view_users_display">
+                {% for user in all_users %}
+                    <li>{{ user.username }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // JavaScript for manager and user search and dynamic addition/removal
+    
+        // Filter the manager list based on the search input
+        document.getElementById('search_manager_btn').addEventListener('click', function() {
+            const searchQuery = document.getElementById('manager_search').value.toLowerCase();
+            const managerOptions = document.querySelectorAll('#added_managers option');
+    
+            managerOptions.forEach(option => {
+                const managerName = option.textContent.toLowerCase();
+                if (managerName.includes(searchQuery)) {
+                    option.style.display = 'block'; // Show matching options
+                } else {
+                    option.style.display = 'none'; // Hide non-matching options
+                }
+            });
+        });
+    
+        // Filter the user list based on the search input
+        document.getElementById('search_user_btn').addEventListener('click', function() {
+            const searchQuery = document.getElementById('user_search').value.toLowerCase();
+            const userOptions = document.querySelectorAll('#added_users option');
+    
+            userOptions.forEach(option => {
+                const userName = option.textContent.toLowerCase();
+                if (userName.includes(searchQuery)) {
+                    option.style.display = 'block'; // Show matching options
+                } else {
+                    option.style.display = 'none'; // Hide non-matching options
+                }
+            });
+        });
+    
+        // Add Manager to the assigned list
+        document.getElementById('add_manager_btn').addEventListener('click', function() {
+            const managerSelect = document.getElementById('added_managers');
+            const selectedManager = managerSelect.options[managerSelect.selectedIndex];
+            const managerId = selectedManager.value;
+            const managerName = selectedManager.text;
+    
+            // Add the manager to the assigned list with commas
+            const assignedManagerList = document.getElementById('assigned_managers_display');
+            const listItem = document.createElement('li');
+            listItem.innerHTML = managerName + ' <button class="remove-manager-btn" data-manager-id="' + managerId + '">Remove</button>';
+            assignedManagerList.appendChild(listItem);
+    
+            // Update receiver field
+            let currentReceiver = document.getElementById('receiver').value;
+            currentReceiver = currentReceiver ? currentReceiver + ', ' + managerName : managerName;
+            document.getElementById('receiver').value = currentReceiver;
+    
+            // Remove from dropdown
+            selectedManager.remove();
+    
+            // Add hidden input field for form submission
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'assigned_managers'; // Adjust according to your backend
+            hiddenInput.value = managerId;
+            document.querySelector('form').appendChild(hiddenInput);
+        });
+    
+        // Remove Manager from the assigned list
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-manager-btn')) {
+                const managerId = event.target.getAttribute('data-manager-id');
+                const listItem = event.target.closest('li');
+                const managerNameToRemove = listItem.textContent.replace(' Remove', '').trim();
+    
+                // Remove manager from the displayed list
+                listItem.remove();
+    
+                // Update receiver field
+                let currentReceiver = document.getElementById('receiver').value;
+                currentReceiver = currentReceiver.replace(managerNameToRemove, '').trim();
+                document.getElementById('receiver').value = currentReceiver;
+    
+                // Optionally, add removed manager back to the dropdown
+                const managerSelect = document.getElementById('added_managers');
+                const option = document.createElement('option');
+                option.value = managerId;
+                option.text = managerNameToRemove;
+                managerSelect.appendChild(option);
+            }
+        });
+    </script>
+</body>
+</html>

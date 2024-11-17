@@ -1,0 +1,96 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form List</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>All Forms</h1>
+
+        <!-- Filter/Search Section -->
+        <form method="get" action="{% url 'form_list' %}" class="search-form">
+            <label for="search">Search by Title or Content:</label>
+            <input type="text" id="search" name="search" placeholder="Search..." value="{{ request.GET.search }}">
+            <button type="submit">Search</button>
+        </form>
+
+        <!-- Forms Table -->
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Form ID</th>
+                        <th>Title</th>
+                        <th>Sender</th>
+                        <th>Sender's Signature</th>
+                        <th>Receiver</th>
+                        <th>Receiver's Signature</th>
+                        <th>Content</th>
+                        <th>Tags</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Submitted By</th>
+                        <th>Verified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in forms %}
+                        <tr>
+                            <td>{{ form.id }}</td>
+                            <td>{{ form.title|default:"N/A" }}</td>
+                            <td>{{ form.sender|default:"N/A" }}</td>
+                            <td>{{ form.sender_signature|default:"N/A" }}</td>
+                            <td>{{ form.receiver|default:"N/A" }}</td>
+                            <td>{{ form.receiver_signature|default:"N/A" }}</td>
+                            <td>{{ form.content|default:"N/A" }}</td>
+                            <td>
+                                {% for tag in form.tags.all %}
+                                    {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    N/A
+                                {% endfor %}
+                            </td>
+                            <td>{{ form.category.name|default:"N/A" }}</td>
+                            <td>{{ form.priority|default:"N/A" }}</td>
+                            <td>{{ form.sender_name|default:"N/A" }}</td>
+                            <td>{{ form.verified|yesno:"Yes,No" }}</td>
+                            <td>
+                                {% if request.user.role == 'manager' and form.receiver == request.user.username and not form.verified %}
+                                    <a href="{% url 'verify_form' form.id %}">Verify</a> |
+                                {% endif %}
+                                {% if request.user == form.created_by %}
+                                    <a href="{% url 'edit_form' form.id %}">Edit</a> |
+                                {% endif %}
+                                <a href="{% url 'send_form' form.id %}">Send</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="13">No forms found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if forms.has_previous %}
+                <a href="?page=1">&laquo; First</a>
+                <a href="?page={{ forms.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span>Page {{ forms.number }} of {{ forms.paginator.num_pages }}</span>
+            {% if forms.has_next %}
+                <a href="?page={{ forms.next_page_number }}">Next</a>
+                <a href="?page={{ forms.paginator.num_pages }}">Last &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

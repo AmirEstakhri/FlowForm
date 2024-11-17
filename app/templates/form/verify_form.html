@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Form</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Verify Form</h1>
+        <p>Are you sure you want to verify the following form?</p>
+
+        <div class="form-details">
+            <p><strong>Title:</strong> {{ form.title }}</p>
+            <p><strong>Sender's Signature:</strong> {{ form.sender_signature }}</p>
+            <p><strong>Receiver:</strong> {{ form.receiver }}</p>
+            <p><strong>Content:</strong> {{ form.content }}</p>
+            <p><strong>Priority:</strong> {{ form.priority }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Verify</button>
+            <a href="{% url 'form_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
