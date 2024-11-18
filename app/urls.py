@@ -14,6 +14,10 @@ urlpatterns = [
     path('send_to_manager/<int:form_id>/<int:manager_id>/', views.send_form_to_manager, name='send_form_to_manager'),
     path('login/', user_login, name='login'),
     path('managers/', views.user_list, name='user_list'),  # URL for your manager list view
+    path('assigned-forms/', views.assigned_forms_view, name='assigned_forms'),
+    path('forms/assigned-to-manager/', views.forms_assigned_to_manager, name='forms_assigned_to_manager'),
+
+
 
 
 ]

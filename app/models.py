@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.auth.models import User
 from django.conf import settings
+from user_categories.models import UserCategory, UserCategoryMembership
+
+
 
 
 # Custom manager for CustomUser model
@@ -145,3 +148,5 @@ class FormVersion(models.Model):
     class Meta:
         verbose_name = 'Form Version'
         verbose_name_plural = 'Form Versions'
+
+

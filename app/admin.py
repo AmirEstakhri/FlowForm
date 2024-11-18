@@ -28,9 +28,25 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('username', 'password1', 'password2', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser', 'role', 'sub_role')  # Add 'role' and 'sub_role' to the add form
         }),
     )
+# from django.contrib import admin
+# from .models import UserCategory
+
+# @admin.register(UserCategory)
+# class UserCategoryAdmin(admin.ModelAdmin):
+#     list_display = ('name',)
+#     filter_horizontal = ('users',)
+
 
 # Register the CustomUser model with CustomUserAdmin
+
 admin.site.register(CustomUser, CustomUserAdmin)
+from django.contrib import admin
+from .models import UserCategory, UserCategoryMembership
+
+admin.site.register(UserCategory)
+admin.site.register(UserCategoryMembership)
+
+
 
 # Register other models
 admin.site.register(Tag)

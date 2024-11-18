@@ -186,7 +186,7 @@
         });
     
         // Filter the user list based on the search input
-        document.getElementById('search_user_btn').addEventListener('click', function() {
+        {% comment %} document.getElementById('search_user_btn').addEventListener('click', function() {
             const searchQuery = document.getElementById('user_search').value.toLowerCase();
             const userOptions = document.querySelectorAll('#added_users option');
     
@@ -198,7 +198,7 @@
                     option.style.display = 'none'; // Hide non-matching options
                 }
             });
-        });
+        }); {% endcomment %}
     
         // Add Manager to the assigned list
         document.getElementById('add_manager_btn').addEventListener('click', function() {
@@ -242,6 +242,11 @@
             listItem.innerHTML = userName + ' <button class="remove-user-btn" data-user-id="' + userId + '">Remove</button>';
             assignedUserList.appendChild(listItem);
     
+            // Update receiver field
+            let currentReceiver = document.getElementById('receiver').value;
+            currentReceiver = currentReceiver ? currentReceiver + ', ' + userName : userName;
+            document.getElementById('receiver').value = currentReceiver;
+    
             // Remove from dropdown
             selectedUser.remove();
     
@@ -252,38 +257,58 @@
             hiddenInput.value = userId;
             document.querySelector('form').appendChild(hiddenInput);
         });
-    
+
         // Remove Manager from the assigned list
-        document.addEventListener('click', function(event) {
-            if (event.target && event.target.classList.contains('remove-manager-btn')) {
+        document.getElementById('assigned_managers_display').addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-manager-btn')) {
                 const managerId = event.target.getAttribute('data-manager-id');
+                const managerName = event.target.parentElement.textContent.replace('Remove', '').trim();
     
-                // Remove from assigned list
+                // Remove manager from the assigned list
                 event.target.parentElement.remove();
     
-                // Re-add manager option to the dropdown
+                // Re-add to the dropdown
                 const managerSelect = document.getElementById('added_managers');
-                const option = document.createElement('option');
-                option.value = managerId;
-                option.textContent = event.target.parentElement.textContent.replace(' Remove', '');
-                managerSelect.appendChild(option);
+                const newOption = document.createElement('option');
+                newOption.value = managerId;
+                newOption.text = managerName;
+                managerSelect.appendChild(newOption);
+    
+                // Remove hidden input for form submission
+                const hiddenInput = document.querySelector('input[name="assigned_managers"][value="' + managerId + '"]');
+                if (hiddenInput) hiddenInput.remove();
+    
+                // Update receiver field
+                let currentReceiver = document.getElementById('receiver').value;
+                currentReceiver = currentReceiver.replace(managerName, '').replace(/^,/, '');
+                document.getElementById('receiver').value = currentReceiver;
             }
         });
 
         // Remove User from the assigned list
-        document.addEventListener('click', function(event) {
-            if (event.target && event.target.classList.contains('remove-user-btn')) {
+        document.getElementById('assigned_users_display').addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-user-btn')) {
                 const userId = event.target.getAttribute('data-user-id');
+                const userName = event.target.parentElement.textContent.replace('Remove', '').trim();
     
-                // Remove from assigned list
+                // Remove user from the assigned list
                 event.target.parentElement.remove();
     
-                // Re-add user option to the dropdown
+                // Re-add to the dropdown
                 const userSelect = document.getElementById('added_users');
-                const option = document.createElement('option');
-                option.value = userId;
-                option.textContent = event.target.parentElement.textContent.replace(' Remove', '');
-                userSelect.appendChild(option);
+                const newOption = document.createElement('option');
+                newOption.value = userId;
+                newOption.text = userName;
+                userSelect.appendChild(newOption);
+    
+                // Remove hidden input for form submission
+                const hiddenInput = document.querySelector('input[name="assigned_users"][value="' + userId + '"]');
+                if (hiddenInput) hiddenInput.remove();
+    
+                // Update receiver field
+                let currentReceiver = document.getElementById('receiver').value;
+                currentReceiver = currentReceiver.replace(userName, '').replace(/^,/, '');
+                document.getElementById('receiver').value = currentReceiver;
             }
         });
     </script>

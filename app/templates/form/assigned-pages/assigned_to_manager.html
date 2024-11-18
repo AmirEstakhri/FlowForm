@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forms Assigned to You</title>
+</head>
+<body>
+    <h1>Forms Assigned to You</h1>
+
+    {% if forms %}
+        <ul>
+            {% for form in forms %}
+                <li>
+                    <strong>{{ form.title }}</strong> - Created by {{ form.sender_signature }}
+                    <br>
+                    <a href="{% url 'form_detail' form.id %}">View Form</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No forms are currently assigned to you as a manager.</p>
+    {% endif %}
+</body>
+</html>

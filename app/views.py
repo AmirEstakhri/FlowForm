@@ -32,7 +32,7 @@ def homepage(request):
         'is_manager': request.user.role == 'manager',
         'is_user': request.user.role == 'user',
     }
-    return render(request, 'form/homepage.html', context)
+    return render(request, 'home/homepage.html', context)
 
 
 # Set up logging for errors
@@ -117,13 +117,6 @@ def create_form(request):
         'categories': categories,
         'user': request.user,
     })
-
-
-
-
-
-
- # If you have a custom form, otherwise use Django's default authentication form.
 
 
 
@@ -217,7 +210,40 @@ def form_list(request):
 
     return render(request, 'form/form_list.html', {'forms': forms})
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Form
 
+@login_required
+def assigned_forms_view(request):
+    # Get the current user
+    current_user = request.user
+
+    # Query forms where the current user is in the assigned_users field
+    assigned_forms = Form.objects.filter(assigned_users=current_user).distinct()
+    
+
+    # Pass the filtered forms to the template
+    context = {
+        'assigned_forms': assigned_forms,
+    }
+    return render(request, 'form/assigned-pages/assigned_forms.html', context)
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Form
+
+@login_required
+def forms_assigned_to_manager(request):
+    # Get the logged-in user
+    current_user = request.user
+
+    # Query forms where the current user is an assigned manager
+    forms = Form.objects.filter(assigned_managers__username=current_user.username).distinct()
+
+    # Render the filtered forms
+    return render(request, 'forms/assigned-pages/assigned_to_manager.html', {'forms': forms})
 
 
 @login_required

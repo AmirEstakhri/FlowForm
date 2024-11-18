@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sayad',
     'app',
+    'user_categories',
+
 
 ]
 
