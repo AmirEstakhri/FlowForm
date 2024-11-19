@@ -1,0 +1,23 @@
+<!-- userprofile/templates/userprofile/view_profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Profile</title>
+</head>
+<body>
+    <h2>{{ profile.user.username }}'s Profile</h2>
+    
+    {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
+    {% endif %}
+    
+    <p>Bio: {{ profile.bio }}</p>
+    
+    <!-- Add a button to update the profile picture -->
+    <form action="{% url 'userprofile:update_profile_picture' %}" method="get">
+        <button type="submit">Update Profile Picture</button>
+    </form>
+</body>
+</html>

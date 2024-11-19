@@ -146,7 +146,7 @@
                 {% for manager in assigned_managers %}
                     <li>
                         {{ manager.username }} 
-                        <button class="remove-manager-btn" data-manager-id="{{ manager.id }}">Remove</button>
+                        <button  class="remove-manager-btn" data-manager-id="{{ manager.id }}">Remove</button>
                     </li>
                 {% endfor %}
             </ul>
@@ -168,150 +168,186 @@
     </div>
 
     <script>
-        // JavaScript for manager and user search and dynamic addition/removal
-    
-        // Filter the manager list based on the search input
-        document.getElementById('search_manager_btn').addEventListener('click', function() {
-            const searchQuery = document.getElementById('manager_search').value.toLowerCase();
-            const managerOptions = document.querySelectorAll('#added_managers option');
-    
-            managerOptions.forEach(option => {
-                const managerName = option.textContent.toLowerCase();
-                if (managerName.includes(searchQuery)) {
-                    option.style.display = 'block'; // Show matching options
-                } else {
-                    option.style.display = 'none'; // Hide non-matching options
-                }
-            });
-        });
-    
-        // Filter the user list based on the search input
-        {% comment %} document.getElementById('search_user_btn').addEventListener('click', function() {
-            const searchQuery = document.getElementById('user_search').value.toLowerCase();
-            const userOptions = document.querySelectorAll('#added_users option');
-    
-            userOptions.forEach(option => {
-                const userName = option.textContent.toLowerCase();
-                if (userName.includes(searchQuery)) {
-                    option.style.display = 'block'; // Show matching options
-                } else {
-                    option.style.display = 'none'; // Hide non-matching options
-                }
-            });
-        }); {% endcomment %}
-    
-        // Add Manager to the assigned list
-        document.getElementById('add_manager_btn').addEventListener('click', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Clear any pre-selected options on page load for Managers and Users
             const managerSelect = document.getElementById('added_managers');
-            const selectedManager = managerSelect.options[managerSelect.selectedIndex];
-            const managerId = selectedManager.value;
-            const managerName = selectedManager.text;
-    
-            // Add the manager to the assigned list
-            const assignedManagerList = document.getElementById('assigned_managers_display');
-            const listItem = document.createElement('li');
-            listItem.innerHTML = managerName + ' <button class="remove-manager-btn" data-manager-id="' + managerId + '">Remove</button>';
-            assignedManagerList.appendChild(listItem);
-    
-            // Update receiver field
-            let currentReceiver = document.getElementById('receiver').value;
-            currentReceiver = currentReceiver ? currentReceiver + ', ' + managerName : managerName;
-            document.getElementById('receiver').value = currentReceiver;
-    
-            // Remove from dropdown
-            selectedManager.remove();
-    
-            // Add hidden input field for form submission
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'assigned_managers'; // Adjust according to your backend
-            hiddenInput.value = managerId;
-            document.querySelector('form').appendChild(hiddenInput);
-        });
-
-        // Add User to the assigned list
-        document.getElementById('add_user_btn').addEventListener('click', function() {
             const userSelect = document.getElementById('added_users');
-            const selectedUser = userSelect.options[userSelect.selectedIndex];
-            const userId = selectedUser.value;
-            const userName = selectedUser.text;
     
-            // Add the user to the assigned list
-            const assignedUserList = document.getElementById('assigned_users_display');
-            const listItem = document.createElement('li');
-            listItem.innerHTML = userName + ' <button class="remove-user-btn" data-user-id="' + userId + '">Remove</button>';
-            assignedUserList.appendChild(listItem);
+            if (managerSelect) managerSelect.selectedIndex = -1; // Clear pre-selection
+            if (userSelect) userSelect.selectedIndex = -1; // Clear pre-selection
     
-            // Update receiver field
-            let currentReceiver = document.getElementById('receiver').value;
-            currentReceiver = currentReceiver ? currentReceiver + ', ' + userName : userName;
-            document.getElementById('receiver').value = currentReceiver;
+            // Get the logged-in user's username
+            const loggedInUsername = '{{ request.user.username|escapejs }}';
     
-            // Remove from dropdown
-            selectedUser.remove();
-    
-            // Add hidden input field for form submission
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'assigned_users'; // Adjust according to your backend
-            hiddenInput.value = userId;
-            document.querySelector('form').appendChild(hiddenInput);
-        });
-
-        // Remove Manager from the assigned list
-        document.getElementById('assigned_managers_display').addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-manager-btn')) {
-                const managerId = event.target.getAttribute('data-manager-id');
-                const managerName = event.target.parentElement.textContent.replace('Remove', '').trim();
-    
-                // Remove manager from the assigned list
-                event.target.parentElement.remove();
-    
-                // Re-add to the dropdown
-                const managerSelect = document.getElementById('added_managers');
-                const newOption = document.createElement('option');
-                newOption.value = managerId;
-                newOption.text = managerName;
-                managerSelect.appendChild(newOption);
-    
-                // Remove hidden input for form submission
-                const hiddenInput = document.querySelector('input[name="assigned_managers"][value="' + managerId + '"]');
-                if (hiddenInput) hiddenInput.remove();
-    
-                // Update receiver field
-                let currentReceiver = document.getElementById('receiver').value;
-                currentReceiver = currentReceiver.replace(managerName, '').replace(/^,/, '');
-                document.getElementById('receiver').value = currentReceiver;
+            // Filter out the logged-in user's name from Managers and Users dropdowns
+            if (managerSelect) {
+                Array.from(managerSelect.options).forEach(option => {
+                    if (option.textContent.trim() === loggedInUsername) {
+                        option.remove();
+                    }
+                });
             }
-        });
-
-        // Remove User from the assigned list
-        document.getElementById('assigned_users_display').addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-user-btn')) {
-                const userId = event.target.getAttribute('data-user-id');
-                const userName = event.target.parentElement.textContent.replace('Remove', '').trim();
     
-                // Remove user from the assigned list
-                event.target.parentElement.remove();
+            if (userSelect) {
+                Array.from(userSelect.options).forEach(option => {
+                    if (option.textContent.trim() === loggedInUsername) {
+                        option.remove();
+                    }
+                });
+            }
     
-                // Re-add to the dropdown
-                const userSelect = document.getElementById('added_users');
-                const newOption = document.createElement('option');
-                newOption.value = userId;
-                newOption.text = userName;
-                userSelect.appendChild(newOption);
+            // Manager Search
+            const searchManagerBtn = document.getElementById('search_manager_btn');
+            if (searchManagerBtn) {
+                searchManagerBtn.addEventListener('click', function () {
+                    const searchQuery = document.getElementById('manager_search').value.toLowerCase();
+                    const managerOptions = document.querySelectorAll('#added_managers option');
+                    managerOptions.forEach(option => {
+                        const managerName = option.textContent.toLowerCase();
+                        option.style.display = managerName.includes(searchQuery) ? 'block' : 'none';
+                    });
+                });
+            }
     
-                // Remove hidden input for form submission
-                const hiddenInput = document.querySelector('input[name="assigned_users"][value="' + userId + '"]');
-                if (hiddenInput) hiddenInput.remove();
+            // User Search
+            const searchUserBtn = document.getElementById('search_user_btn');
+            if (searchUserBtn) {
+                searchUserBtn.addEventListener('click', function () {
+                    const searchQuery = document.getElementById('user_search').value.toLowerCase();
+                    const userOptions = document.querySelectorAll('#added_users option');
+                    userOptions.forEach(option => {
+                        const userName = option.textContent.toLowerCase();
+                        option.style.display = userName.includes(searchQuery) ? 'block' : 'none';
+                    });
+                });
+            }
     
-                // Update receiver field
-                let currentReceiver = document.getElementById('receiver').value;
-                currentReceiver = currentReceiver.replace(userName, '').replace(/^,/, '');
-                document.getElementById('receiver').value = currentReceiver;
+            // Add Manager to the assigned list
+            const addManagerBtn = document.getElementById('add_manager_btn');
+            if (addManagerBtn) {
+                addManagerBtn.addEventListener('click', function () {
+                    const selectedManager = managerSelect.options[managerSelect.selectedIndex];
+                    if (!selectedManager) return; // No selection
+    
+                    const managerId = selectedManager.value;
+                    const managerName = selectedManager.text;
+    
+                    // Add manager to the assigned list
+                    const assignedManagerList = document.getElementById('assigned_managers_display');
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `${managerName} <button class="remove-manager-btn" data-manager-id="${managerId}">Remove</button>`;
+                    assignedManagerList.appendChild(listItem);
+    
+                    // Update receiver field
+                    const receiverField = document.getElementById('receiver');
+                    receiverField.value = receiverField.value ? `${receiverField.value}, ${managerName}` : managerName;
+    
+                    // Remove from dropdown
+                    selectedManager.remove();
+    
+                    // Add hidden input for form submission
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'assigned_managers';
+                    hiddenInput.value = managerId;
+                    document.querySelector('form').appendChild(hiddenInput);
+                });
+            }
+    
+            // Add User to the assigned list
+            const addUserBtn = document.getElementById('add_user_btn');
+            if (addUserBtn) {
+                addUserBtn.addEventListener('click', function () {
+                    const selectedUser = userSelect.options[userSelect.selectedIndex];
+                    if (!selectedUser) return; // No selection
+    
+                    const userId = selectedUser.value;
+                    const userName = selectedUser.text;
+    
+                    // Add user to the assigned list
+                    const assignedUserList = document.getElementById('assigned_users_display');
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `${userName} <button class="remove-user-btn" data-user-id="${userId}">Remove</button>`;
+                    assignedUserList.appendChild(listItem);
+    
+                    // Update receiver field
+                    const receiverField = document.getElementById('receiver');
+                    receiverField.value = receiverField.value ? `${receiverField.value}, ${userName}` : userName;
+    
+                    // Remove from dropdown
+                    selectedUser.remove();
+    
+                    // Add hidden input for form submission
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'assigned_users';
+                    hiddenInput.value = userId;
+                    document.querySelector('form').appendChild(hiddenInput);
+                });
+            }
+    
+            // Remove Manager from the assigned list
+            const assignedManagersDisplay = document.getElementById('assigned_managers_display');
+            if (assignedManagersDisplay) {
+                assignedManagersDisplay.addEventListener('click', function (event) {
+                    if (event.target.classList.contains('remove-manager-btn')) {
+                        const managerId = event.target.getAttribute('data-manager-id');
+                        const managerName = event.target.parentElement.textContent.replace('Remove', '').trim();
+    
+                        // Remove manager from the assigned list
+                        event.target.parentElement.remove();
+    
+                        // Re-add to the dropdown
+                        const newOption = document.createElement('option');
+                        newOption.value = managerId;
+                        newOption.text = managerName;
+                        managerSelect.appendChild(newOption);
+    
+                        // Remove hidden input for form submission
+                        const hiddenInput = document.querySelector(`input[name="assigned_managers"][value="${managerId}"]`);
+                        if (hiddenInput) hiddenInput.remove();
+    
+                        // Update receiver field
+                        const receiverField = document.getElementById('receiver');
+                        receiverField.value = receiverField.value.replace(new RegExp(`,?\\s*${managerName}`), '').trim();
+                    }
+                });
+            }
+    
+            // Remove User from the assigned list
+            const assignedUsersDisplay = document.getElementById('assigned_users_display');
+            if (assignedUsersDisplay) {
+                assignedUsersDisplay.addEventListener('click', function (event) {
+                    if (event.target.classList.contains('remove-user-btn')) {
+                        const userId = event.target.getAttribute('data-user-id');
+                        const userName = event.target.parentElement.textContent.replace('Remove', '').trim();
+    
+                        // Remove user from the assigned list
+                        event.target.parentElement.remove();
+    
+                        // Re-add to the dropdown
+                        const newOption = document.createElement('option');
+                        newOption.value = userId;
+                        newOption.text = userName;
+                        userSelect.appendChild(newOption);
+    
+                        // Remove hidden input for form submission
+                        const hiddenInput = document.querySelector(`input[name="assigned_users"][value="${userId}"]`);
+                        if (hiddenInput) hiddenInput.remove();
+    
+                        // Update receiver field
+                        const receiverField = document.getElementById('receiver');
+                        receiverField.value = receiverField.value.replace(new RegExp(`,?\\s*${userName}`), '').trim();
+                    }
+                });
             }
         });
     </script>
+    
+    
+    
+    
+    
 
 </body>
 </html>

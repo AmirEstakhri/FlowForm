@@ -1,3 +1,5 @@
+# forms.py
+
 from django import forms
 from .models import Form, Tag, Category, CustomUser
 
@@ -118,3 +120,10 @@ class FormCreationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150, required=True, label="Username")
     password = forms.CharField(widget=forms.PasswordInput, required=True, label="Password")
+
+
+
+class ProfilePictureForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['profile_image']

@@ -64,9 +64,15 @@ INSTALLED_APPS = [
     'sayad',
     'app',
     'user_categories',
+    'crispy_forms',
+    'widget_tweaks',
+     'userprofile',
+
 
 
 ]
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -143,6 +149,9 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # Adjust BASE_DIR based on your setup
 
 
 # Static files (CSS, JavaScript, Images)
