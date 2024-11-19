@@ -11,6 +11,8 @@ from .models import Form, FormVersion, CustomUser, Tag, Category  # Import relev
 from .forms import FormCreationForm, LoginForm  # Import relevant forms
 from app.utils import is_manager  # Assuming `is_manager` is a utility function to check roles
 import logging
+from user_categories.models import UserCategoryMembership
+
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -41,23 +43,136 @@ logger = logging.getLogger(__name__)
 
 
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import CustomUser, Tag, Category, UserCategory, UserCategoryMembership
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import FormCreationForm
+from .models import CustomUser, Tag, Category, UserCategoryMembership, Form
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import FormCreationForm
+from .models import CustomUser, Tag, Category
+
+# @login_required
+# def create_form(request):
+#     # Initialize querysets for users and managers
+#     managers = CustomUser.objects.filter(role='manager')  # Default: All managers to show
+#     all_users = None  # Users based on logged-in user's sub-role
+#     all_managers = CustomUser.objects.filter(role='manager')  # Default: Managers
+
+#     # Get all tags and categories from the database
+#     tags = Tag.objects.all()
+#     categories = Category.objects.all()
+
+#     # Handle filtering based on logged-in user's role and sub-role
+#     if request.user.role == 'user':
+#         if request.user.sub_role == 'user-access-to-all-users-with-role-user':
+#             # User with this sub-role can see all users with role 'user'
+#             all_users = CustomUser.objects.filter(role='user')
+#     elif request.user.sub_role == 'manager-access-to-all-users-with-role-manager':
+#         # Managers with this sub-role can see all users and managers, excluding themselves
+#         all_users = CustomUser.objects.filter(role='user')
+#         all_managers = CustomUser.objects.filter(role='manager').exclude(id=request.user.id)
+
+#     # Handle filtering based on selected category (if any)
+#     selected_category_id = request.GET.get('category', None)
+#     if selected_category_id:
+#         category = Category.objects.get(id=selected_category_id)
+#         all_users = CustomUser.objects.filter(
+#             usercategorymembership__category=category
+#         )
+#         all_managers = CustomUser.objects.filter(
+#             role='manager',
+#             usercategorymembership__category=category
+#         ).exclude(id=request.user.id)
+
+#     # Handle form submission
+#     if request.method == 'POST':
+#         form = FormCreationForm(request.POST, user=request.user)  # Pass logged-in user to form
+#         if form.is_valid():
+#             try:
+#                 # Save form instance without committing to get the instance ID
+#                 form_instance = form.save(commit=False)
+#                 form_instance.save()  # Save to generate ID
+                
+#                 # Set ManyToMany and ForeignKey relationships after saving the form instance
+#                 tags_selected = form.cleaned_data.get('tags')
+#                 if tags_selected:
+#                     form_instance.tags.set(tags_selected)  # Set tags to the form
+                
+#                 category_selected = form.cleaned_data.get('category')
+#                 if category_selected:
+#                     form_instance.category = category_selected  # Set category
+
+#                 # Handle assigned managers (ManyToManyField)
+#                 assigned_managers = form.cleaned_data.get('assigned_managers')
+#                 if assigned_managers:
+#                     form_instance.assigned_managers.set(assigned_managers)  # Assign managers
+               
+#                 # Handle added users (ManyToManyField)
+#                 added_users = form.cleaned_data.get('added_users')
+#                 if added_users:
+#                     form_instance.added_users.set(added_users)  # Assign users to the form
+
+#                 form_instance.save()  # Save again to commit ManyToMany and ForeignKey fields
+
+#                 # Provide success message and redirect to form list
+#                 messages.success(request, 'Form created successfully!')
+#                 return redirect('form_list')  # Adjust URL as needed for form listing page
+#             except Exception as e:
+#                 # Handle any exceptions during save
+#                 messages.error(request, f'Error saving the form: {e}')
+#         else:
+#             # If form is not valid, show field errors
+#             field_errors = {field: error for field, error in form.errors.items()}
+#             messages.error(request, f'There was an error creating the form: {field_errors}')
+#     else:
+#         # Initialize the form with the logged-in user instance
+#         form = FormCreationForm(user=request.user)
+
+#     # Render the form creation page with all necessary context
+#     return render(request, 'form/create_form.html', {
+#         'form': form,
+#         'managers': managers,  # All managers (or filtered based on category)
+#         'all_users': all_users,  # All users based on the logged-in user's sub-role or category
+#         'all_managers': all_managers,  # All managers based on the selected category or sub-role
+#         'tags': tags,
+#         'categories': categories,  # Display categories for filtering
+#         'user': request.user,  # Pass logged-in user to template for context
+#     })
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Tag, Category, CustomUser, Form
+from .forms import FormCreationForm
+
 @login_required
 def create_form(request):
-    # Get all managers for displaying to users
-    managers = CustomUser.objects.filter(role='manager')
+    # Get the logged-in user's categories
+    user_categories = request.user.usercategorymembership_set.values_list('category', flat=True)
 
-    # Initialize variables for users and managers to be added based on sub-role
-    all_users = None  # Adjust this query to get the appropriate users
-    all_managers = CustomUser.objects.filter(role='manager')  # Adjust this query to get the managers
+    # Initialize querysets for managers filtered by shared categories
+    assigned_managers = CustomUser.objects.filter(
+        role='manager',
+        usercategorymembership__category__in=user_categories
+    ).distinct()  # Ensure unique results
 
-    # Check the logged-in user's role and sub-role to determine which users/managers to display
-    if request.user.role == 'user':
-        if request.user.sub_role == 'user-access-to-all-users-with-role-user':
-            all_users = CustomUser.objects.filter(role='user')
-    elif request.user.sub_role == 'manager-access-to-all-users-with-role-manager':
-        # Managers with this sub-role can see all users and managers except themselves
-        all_users = CustomUser.objects.filter(role='user')
-        all_managers = CustomUser.objects.filter(role='manager').exclude(id=request.user.id)
+    # Initialize querysets for users only if the user has the required sub-role
+    if request.user.sub_role == "user-access-to-all-users-with-role-user":
+        assigned_users = CustomUser.objects.filter(
+            role='user',
+            usercategorymembership__category__in=user_categories
+        ).distinct()  # Ensure unique results
+    else:
+        assigned_users = CustomUser.objects.none()  # Empty queryset if no sub-role
 
     # Get all tags and categories from the database
     tags = Tag.objects.all()
@@ -65,59 +180,58 @@ def create_form(request):
 
     # Handle form submission
     if request.method == 'POST':
-        form = FormCreationForm(request.POST, user=request.user)  # Pass the user to the form instance
+        form = FormCreationForm(request.POST, user=request.user)  # Pass logged-in user to form
         if form.is_valid():
             try:
-                # Save the form instance first to generate the id
-                form_instance = form.save(commit=False)  # Don't commit yet, just save the form object
-                form_instance.save()  # Save it now to generate the id
+                # Save form instance without committing to get the instance ID
+                form_instance = form.save(commit=False)
+                form_instance.save()  # Save to generate ID
                 
-                # Now set the ManyToMany and ForeignKey relationships
+                # Set ManyToMany and ForeignKey relationships after saving the form instance
                 tags_selected = form.cleaned_data.get('tags')
                 if tags_selected:
-                    form_instance.tags.set(tags_selected)  # Set ManyToManyField tags
-
+                    form_instance.tags.set(tags_selected)  # Set tags to the form
+                
                 category_selected = form.cleaned_data.get('category')
                 if category_selected:
-                    form_instance.category = category_selected  # Set ForeignKey category
+                    form_instance.category = category_selected  # Set category
 
-                # Handling Many-to-Many relationship for assigned managers
-                assigned_managers = form.cleaned_data.get('assigned_managers')
-                if assigned_managers:
-                    form_instance.assigned_managers.set(assigned_managers)  # Set ManyToManyField assigned_managers
+                # Handle assigned managers (ManyToManyField)
+                assigned_managers_selected = form.cleaned_data.get('assigned_managers')
+                if assigned_managers_selected:
+                    form_instance.assigned_managers.set(assigned_managers_selected)  # Assign managers
+               
+                # Handle added users (ManyToManyField) only if user has the sub-role
+                if request.user.sub_role == "user-access-to-all-users-with-role-user":
+                    added_users_selected = form.cleaned_data.get('added_users')
+                    if added_users_selected:
+                        form_instance.added_users.set(added_users_selected)  # Assign users to the form
 
-                # Handling Many-to-Many relationship for added users (users who can view the form)
-                added_users = form.cleaned_data.get('added_users')
-                if added_users:
-                    form_instance.added_users.set(added_users)  # Set ManyToManyField added_users
+                form_instance.save()  # Save again to commit ManyToMany and ForeignKey fields
 
-                form_instance.save()  # Save again to commit ManyToMany and ForeignKey changes
-
-                # Provide a success message
+                # Provide success message and redirect to form list
                 messages.success(request, 'Form created successfully!')
-                return redirect('form_list')  # Redirect to form list page (adjust URL as needed)
+                return redirect('form_list')  # Adjust URL as needed for form listing page
             except Exception as e:
-                # Catch any errors during save
+                # Handle any exceptions during save
                 messages.error(request, f'Error saving the form: {e}')
         else:
-            # If form is not valid, show errors
+            # If form is not valid, show field errors
             field_errors = {field: error for field, error in form.errors.items()}
             messages.error(request, f'There was an error creating the form: {field_errors}')
     else:
         # Initialize the form with the logged-in user instance
         form = FormCreationForm(user=request.user)
 
-    # Render the form and pass necessary data to template
+    # Render the form creation page with all necessary context
     return render(request, 'form/create_form.html', {
         'form': form,
-        'managers': managers,
-        'all_users': all_users,
-        'all_managers': all_managers,
+        'assigned_users': assigned_users,  # Filtered users or empty queryset
+        'assigned_managers': assigned_managers,  # Filtered managers
         'tags': tags,
-        'categories': categories,
-        'user': request.user,
+        'categories': categories,  # Display categories for filtering
+        'user': request.user,  # Pass logged-in user to template for context
     })
-
 
 
 def user_login(request):
