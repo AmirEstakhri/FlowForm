@@ -158,7 +158,10 @@ from .forms import FormCreationForm
 def create_form(request):
     # Get the logged-in user's categories
     user_categories = request.user.usercategorymembership_set.values_list('category', flat=True)
-
+    
+    # Debugging: Check categories assigned to the logged-in user
+    print(f"Logged-in User Categories: {user_categories}")
+    
     # Initialize querysets for managers filtered by shared categories
     assigned_managers = CustomUser.objects.filter(
         role='manager',
@@ -173,6 +176,9 @@ def create_form(request):
         ).distinct()  # Ensure unique results
     else:
         assigned_users = CustomUser.objects.none()  # Empty queryset if no sub-role
+
+    # Debugging: Check the assigned users after filtering
+    print(f"Assigned Users: {assigned_users}")
 
     # Get all tags and categories from the database
     tags = Tag.objects.all()
@@ -232,6 +238,7 @@ def create_form(request):
         'categories': categories,  # Display categories for filtering
         'user': request.user,  # Pass logged-in user to template for context
     })
+
 
 
 def user_login(request):
