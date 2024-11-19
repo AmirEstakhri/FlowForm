@@ -40,11 +40,7 @@ class CustomUserAdmin(UserAdmin):
 # Register the CustomUser model with CustomUserAdmin
 
 admin.site.register(CustomUser, CustomUserAdmin)
-from django.contrib import admin
-from .models import UserCategory, UserCategoryMembership
 
-admin.site.register(UserCategory)
-admin.site.register(UserCategoryMembership)
 
 
 

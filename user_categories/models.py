@@ -3,11 +3,6 @@ from django.conf import settings
 
 class UserCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    users = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,  # Dynamically reference the user model
-        through='UserCategoryMembership',
-        related_name="categories"
-    )
 
     def __str__(self):
         return self.name
@@ -18,7 +13,10 @@ class UserCategoryMembership(models.Model):
     category = models.ForeignKey(UserCategory, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('user', 'category')
+        # Enforce that a user can only belong to one category
+        constraints = [
+            models.UniqueConstraint(fields=['user'], name='unique_user_per_category')
+        ]
 
     def __str__(self):
         return f"{self.user.username} in {self.category.name}"
