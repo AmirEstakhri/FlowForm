@@ -88,16 +88,17 @@
                             {% endif %}
                         </td>
                         <td>
-                            <!-- Verify Button: Show if the user is an assigned or allowed manager and form is not verified by the user -->
+                            <!-- Show Verify Button if the user is an assigned or allowed manager -->
                             {% if request.user in form.assigned_managers.all or request.user in form.allowed_managers.all %}
-                                {% if form.verified_by != request.user %}
-                                    <a href="{% url 'verify_form' form.id %}" class="btn-action">Verify</a> |
+                                {% if form.verified %}
+                                    <!-- Show the button for logging verification -->
+                                    <a href="{% url 'verify_form' form.id %}" class="btn-action">Log Your Verification</a> |
                                 {% else %}
-                                    <!-- Hide the button for the user who has verified the form -->
-                                    <span class="btn-action" style="color: gray;">Verified</span> |
+                                    <!-- Show the "Verify" button if the form is not yet verified -->
+                                    <a href="{% url 'verify_form' form.id %}" class="btn-action">Verify</a> |
                                 {% endif %}
                             {% endif %}
-                        
+                            
                             {% if request.user in form.assigned_users.all %}
                                 <span>View Only</span> |
                             {% endif %}

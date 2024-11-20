@@ -1,59 +1,93 @@
-{% extends 'base.html' %}
-
-{% block title %}Send Form{% endblock %}
-
-{% block head %}{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Form</title>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/send_form.css' %}">
-{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <h1>Send Form: {{ form.title }}</h1>
 
-{% block content %}
-<div class="container">
-    <h1>Send Form: {{ form.title }}</h1>
+        <!-- Display messages if any -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
-    <!-- Display messages if any -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+        <!-- Form Details -->
+        <div class="form-details">
+            <p><strong>Title:</strong> {{ form.title }}</p>
+            <p><strong>Sender's Signature:</strong> {{ form.sender_signature }}</p>
+            <p><strong>Receiver:</strong> {{ form.receiver|default:"Not assigned" }}</p>
+            <p><strong>Content:</strong> {{ form.content }}</p>
+            <p><strong>Priority:</strong> {{ form.priority }}</p>
+        </div>
 
-    <!-- Form Details -->
-    <div class="form-details">
-        <p><strong>Title:</strong> {{ form.title }}</p>
-        <p><strong>Sender's Signature:</strong> {{ form.sender_signature }}</p>
-        <p><strong>Receiver:</strong> {{ form.receiver|default:"Not assigned" }}</p>
-        <p><strong>Content:</strong> {{ form.content }}</p>
-        <p><strong>Priority:</strong> {{ form.priority }}</p>
-    </div>
-
-    <!-- Form for Assigning Allowed Managers -->
-    {% if user.role == 'manager' %}
-        <form method="post" class="assign-form">
-            {% csrf_token %}
-            
-            <h3>Assign Allowed Managers</h3>
-            <p>Select managers from the allowed list.</p>
-
-            <!-- Assign to Allowed Managers -->
-            <label for="allowed_managers">Assign to Allowed Manager(s)</label>
-            <select name="allowed_managers" id="allowed_managers" class="form-select" multiple>
-                <option value="">Select Allowed Managers</option>
+        <!-- Form for Assigning Allowed Managers -->
+        {% if user.role == 'manager' %}
+            <form method="post" class="assign-form">
+                {% csrf_token %}
                 
-                {% for manager in allowed_managers %}
-                    <option value="{{ manager.id }}">{{ manager.username }}</option>
-                {% endfor %}
-            </select>
+                <h3>Assign Allowed Managers</h3>
+                <p>Select managers from the allowed list.</p>
 
-            <button type="submit" class="btn btn-primary">Assign Form</button>
-        </form>
-    {% else %}
-        <p>You do not have permission to assign forms.</p>
-    {% endif %}
+                <!-- Assign to Allowed Managers -->
+                <label for="allowed_managers">Assign to Allowed Manager(s)</label>
+                <select name="allowed_managers" id="allowed_managers" class="form-select" multiple>
+                    <option value="">Select Allowed Managers</option>
+                    
+                    {% for manager in allowed_managers %}
+                        <option value="{{ manager.id }}">{{ manager.username }}</option>
+                    {% endfor %}
+                </select>
 
-    <!-- Navigation Links -->
-    <div class="navigation-links">
-        <a href="{% url 'form_list' %}" class="btn btn-secondary">Back to Form List</a>
-        <a href="{% url 'homepage' %}" class="btn btn-secondary">Home</a>
+                <button type="submit" class="btn btn-primary">Assign Form</button>
+            </form>
+        {% else %}
+            <p>You do not have permission to assign forms.</p>
+        {% endif %}
+
+        <!-- Selected Managers Preview -->
+        <div id="selected-managers">
+            <h4>Selected Managers:</h4>
+            <ul id="selected-managers-list"></ul>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="navigation-links">
+            <a href="{% url 'form_list' %}" class="btn btn-secondary">Back to Form List</a>
+            <a href="{% url 'homepage' %}" class="btn btn-secondary">Home</a>
+        </div>
     </div>
-</div>
-{% endblock %}
+
+    <script>
+        const allowedManagersSelect = document.getElementById('allowed_managers');
+        const selectedManagersList = document.getElementById('selected-managers-list');
+
+        // Listen for changes on the multi-select box
+        allowedManagersSelect.addEventListener('change', function() {
+            const selectedManagers = Array.from(allowedManagersSelect.selectedOptions).map(option => option.text);
+            // Clear the current list
+            selectedManagersList.innerHTML = '';
+
+            // Add the selected managers to the preview list
+            selectedManagers.forEach(manager => {
+                const listItem = document.createElement('li');
+                listItem.textContent = manager;
+                selectedManagersList.appendChild(listItem);
+            });
+
+            // Update the hidden input for form submission
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'allowed_managers';
+            hiddenInput.value = Array.from(allowedManagersSelect.selectedOptions).map(option => option.value).join(',');
+            document.querySelector('form').appendChild(hiddenInput);
+        });
+    </script>
+</body>
+</html>
