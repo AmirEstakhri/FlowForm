@@ -90,9 +90,9 @@
                         <td>
                             <!-- Show Verify Button if the user is an assigned or allowed manager -->
                             {% if request.user in form.assigned_managers.all or request.user in form.allowed_managers.all %}
-                                {% if form.verified %}
-                                    <!-- Show the button for logging verification -->
-                                    <a href="{% url 'verify_form' form.id %}" class="btn-action">Log Your Verification</a> |
+                                {% if form.has_verified %}
+                                    <!-- Show message if the user has already verified -->
+                                    <span class="btn-action" style="color: gray;">You have done your verification</span> |
                                 {% else %}
                                     <!-- Show the "Verify" button if the form is not yet verified -->
                                     <a href="{% url 'verify_form' form.id %}" class="btn-action">Verify</a> |

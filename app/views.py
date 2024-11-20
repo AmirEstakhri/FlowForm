@@ -168,6 +168,11 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import render
 from .models import Form
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Form
+
 @login_required
 def form_list(request):
     user = request.user
@@ -193,8 +198,12 @@ def form_list(request):
         # Admins see all forms
         forms = Form.objects.all()
 
-    # Prefetch related fields to optimize queries (tags and category)
+    # Prefetch related fields to optimize queries (tags, category, and verification_logs)
     forms = forms.prefetch_related('tags', 'category', 'verification_logs')  # Include verification_logs
+
+    # Check if the user has verified each form
+    for form in forms:
+        form.has_verified = form.verification_logs.filter(verified_by=user).exists()
 
     return render(request, 'form/form_list.html', {'forms': forms})
 
@@ -384,63 +393,55 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Form, CustomUser
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from django.db.models import Q
+from .models import Form, CustomUser
+
 @login_required
 def send_form(request, form_id):
     form = get_object_or_404(Form, id=form_id)
+    user = request.user
 
-    # If the request is a POST, handle form submission
     if request.method == 'POST':
-        # Check if the form is already verified
-        if form.verified:
-            messages.error(request, 'This form has already been verified and cannot be sent again.')
+        # Prevent the form from being sent to the current user
+        if form.sender == request.user:
+            messages.error(request, "You cannot send a form to yourself.")
             return redirect('form_list')
 
-        # Prevent the form from being sent to the current user (managers cannot send to themselves)
-        if request.user.role == 'manager' and form.sender == request.user:
-            messages.error(request, 'You cannot send a form to yourself.')
-            return redirect('form_list')
-
-        # Handle assigning allowed managers based on user role
-        allowed_manager_ids = request.POST.get('allowed_managers', '').split(',')
+        # Handle assigning allowed managers
+        allowed_manager_ids = request.POST.getlist('allowed_managers')
 
         if allowed_manager_ids:
             try:
-                # Clear existing allowed managers and assign the selected ones
-                form.allowed_managers.clear()
+                # Add selected managers to allowed_managers (do not remove existing)
                 for manager_id in allowed_manager_ids:
                     if manager_id:  # Ensure there's no empty ID
-                        assigned_manager = CustomUser.objects.get(id=manager_id, role='manager')
-                        form.allowed_managers.add(assigned_manager)
-                messages.success(request, 'Form successfully assigned to selected allowed manager(s).')
-            except CustomUser.DoesNotExist:
-                messages.error(request, 'One or more selected managers do not exist.')
+                        allowed_manager = CustomUser.objects.get(id=manager_id, role='manager')
+                        form.allowed_managers.add(allowed_manager)
 
-        # Don't mark as verified yet - wait for the form to be "officially" verified by allowed managers
-        messages.success(request, 'Form sent successfully!')
+                messages.success(request, "Form successfully sent to the selected manager(s).")
+            except CustomUser.DoesNotExist:
+                messages.error(request, "One or more selected managers do not exist.")
+
         return redirect('form_list')
 
-    # Determine allowed managers based on user role
-    if request.user.role == 'admin':
-        # Admins can see all managers and admin users
-        allowed_managers = CustomUser.objects.filter(role__in=['manager', 'admin']).exclude(id=request.user.id)
-    elif request.user.role == 'manager' and request.user.sub_role == 'manager-access-to-all-users-with-role-manager':
-        # Managers with the sub-role can see all other managers and admins
-        allowed_managers = CustomUser.objects.filter(role__in=['manager', 'admin']).exclude(id=request.user.id)
-    else:
-        # Managers with other roles may have restricted access (only managers with role 'manager')
-        allowed_managers = CustomUser.objects.filter(role='manager').exclude(id=request.user.id)
-
-    # Handle verification button logic
-    can_verify = False
-    if request.user in form.assigned_managers.all() or request.user in form.allowed_managers.all():
-        if not form.verified and form.verified_by != request.user:
-            can_verify = True
+    # Prepare allowed managers list, excluding those already assigned
+    excluded_ids = list(
+        form.assigned_users.values_list('id', flat=True)
+    ) + list(
+        form.assigned_managers.values_list('id', flat=True)
+    ) + list(
+        form.allowed_managers.values_list('id', flat=True)
+    )
+    allowed_managers = CustomUser.objects.filter(role='manager').exclude(id__in=excluded_ids)
 
     return render(request, 'form/send_form.html', {
         'form': form,
         'allowed_managers': allowed_managers,
-        'can_verify': can_verify,  # Pass this flag to the template
     })
+
 
 @login_required
 def revert_version(request, form_id, version_number):

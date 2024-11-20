@@ -13,9 +13,11 @@
 
         <!-- Display messages if any -->
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
         {% endif %}
 
         <!-- Form Details -->
@@ -33,27 +35,35 @@
                 {% csrf_token %}
                 
                 <h3>Assign Allowed Managers</h3>
-                <p>Select managers from the allowed list.</p>
+                <p>Select managers from the allowed list. Existing managers will remain in the list.</p>
 
                 <!-- Assign to Allowed Managers -->
                 <label for="allowed_managers">Assign to Allowed Manager(s)</label>
                 <select name="allowed_managers" id="allowed_managers" class="form-select" multiple>
-                    <option value="">Select Allowed Managers</option>
-                    
                     {% for manager in allowed_managers %}
                         <option value="{{ manager.id }}">{{ manager.username }}</option>
                     {% endfor %}
                 </select>
 
-                <button type="submit" class="btn btn-primary">Assign Form</button>
+                <button type="submit" class="btn btn-primary">Send Form</button>
             </form>
         {% else %}
             <p>You do not have permission to assign forms.</p>
         {% endif %}
 
+        <!-- Current Allowed Managers -->
+        <div class="current-managers">
+            <h4>Current Allowed Managers:</h4>
+            <ul>
+                {% for manager in form.allowed_managers.all %}
+                    <li>{{ manager.username }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
         <!-- Selected Managers Preview -->
-        <div id="selected-managers">
-            <h4>Selected Managers:</h4>
+        <div class="selected-managers">
+            <h4>Newly Selected Managers:</h4>
             <ul id="selected-managers-list"></ul>
         </div>
 
@@ -68,9 +78,10 @@
         const allowedManagersSelect = document.getElementById('allowed_managers');
         const selectedManagersList = document.getElementById('selected-managers-list');
 
-        // Listen for changes on the multi-select box
+        // Handle multi-select box changes
         allowedManagersSelect.addEventListener('change', function() {
             const selectedManagers = Array.from(allowedManagersSelect.selectedOptions).map(option => option.text);
+            
             // Clear the current list
             selectedManagersList.innerHTML = '';
 
@@ -80,13 +91,6 @@
                 listItem.textContent = manager;
                 selectedManagersList.appendChild(listItem);
             });
-
-            // Update the hidden input for form submission
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'allowed_managers';
-            hiddenInput.value = Array.from(allowedManagersSelect.selectedOptions).map(option => option.value).join(',');
-            document.querySelector('form').appendChild(hiddenInput);
         });
     </script>
 </body>
