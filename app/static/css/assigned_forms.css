@@ -1,0 +1,66 @@
+/* static/css/assigned_forms.css */
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #007bff;
+}
+
+.form-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-item strong {
+    color: #555;
+}
+
+.form-item p {
+    margin: 8px 0;
+    font-size: 16px;
+}
+
+.form-item ul {
+    padding-left: 20px;
+    list-style-type: none;
+}
+
+.form-item li {
+    margin-bottom: 5px;
+}
+
+.no-forms {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+}
+
+.form-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.form-item a:hover {
+    text-decoration: underline;
+}

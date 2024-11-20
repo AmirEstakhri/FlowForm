@@ -7,11 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Form</title>
     <!-- Add styles here if needed -->
+    <link rel="stylesheet" href="{% static 'css/create_form_styles.css' %}">
+
 </head>
 <body>
 
     <div class="container">
-        <h1>Create a New Form</h1>
+        <h1 style="text-align: center; font-size: 2.5rem; color: #4CAF50; margin-bottom: 20px;">Create a New Form</h1>
 
         <!-- Displaying Success/Error Messages -->
         {% if messages %}
@@ -58,6 +60,7 @@
                     <div class="alert error">{{ form.content.errors }}</div>
                 {% endif %}
             </div>
+            
 
             <div class="form-group">
                 <label for="priority">Priority:</label>
@@ -144,35 +147,50 @@
             <h3>Assigned Managers:</h3>
             <ul id="assigned_managers_display">
                 {% for manager in assigned_managers %}
-                    <li>
-                        {{ manager.username }} 
-                        <button  class="remove-manager-btn" data-manager-id="{{ manager.id }}">Remove</button>
+                    <li class="chip">
+                        <!-- Add Avatar if available, or use a default image -->
+                        <img src="{{ manager.profile_picture_url|default:'https://example.com/default-avatar.png' }}" alt="{{ manager.username }}" class="chip-avatar">
+                        <span class="chip-text">{{ manager.username }}</span>
+                        <button class="remove-manager-btn" data-manager-id="{{ manager.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="afY">
+                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+                            </svg>
+                        </button>
                     </li>
                 {% endfor %}
             </ul>
         </div>
-
+        
         <!-- Assigned Users Display -->
         <div id="assigned_users_list" class="assigned-list">
             <h3>Assigned Users:</h3>
             <ul id="assigned_users_display">
                 {% for user in assigned_users %}
-                    <li>
-                        {{ user.username }} 
-                        <button class="remove-user-btn" data-user-id="{{ user.id }}">Remove</button>
+                    <li class="chip">
+                        <!-- Add Avatar if available, or use a default image -->
+                        <img src="{{ user.profile_picture_url|default:'https://example.com/default-avatar.png' }}" alt="{{ user.username }}" class="chip-avatar">
+                        <span class="chip-text">{{ user.username }}</span>
+                        <button class="remove-user-btn" data-user-id="{{ user.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="afY">
+                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+                            </svg>
+                        </button>
                     </li>
                 {% endfor %}
             </ul>
         </div>
+        
 
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Clear any pre-selected options on page load for Managers and Users
             const managerSelect = document.getElementById('added_managers');
             const userSelect = document.getElementById('added_users');
     
+            // Clear any pre-selected options
             if (managerSelect) managerSelect.selectedIndex = -1; // Clear pre-selection
             if (userSelect) userSelect.selectedIndex = -1; // Clear pre-selection
     
@@ -343,6 +361,8 @@
             }
         });
     </script>
+    
+    
     
     
     

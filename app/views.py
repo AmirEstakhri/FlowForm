@@ -3,20 +3,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from django.db.models import Q
+from .models import Form, CustomUser, Tag, Category, UserCategory, UserCategoryMembership, FormVersion
+from .forms import FormCreationForm, LoginForm
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Form, FormVersion, CustomUser, Tag, Category  # Import relevant models
-from .forms import FormCreationForm, LoginForm  # Import relevant forms
+from django.contrib.auth import login, logout, authenticate
 from app.utils import is_manager  # Assuming `is_manager` is a utility function to check roles
 import logging
 from user_categories.models import UserCategoryMembership
-
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm
 
 # Check if user is a manager
 def is_manager(user):
@@ -40,44 +33,6 @@ def homepage(request):
 # Set up logging for errors
 logger = logging.getLogger(__name__)
 
-
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .models import CustomUser, Tag, Category, UserCategory, UserCategoryMembership
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .forms import FormCreationForm
-from .models import CustomUser, Tag, Category, UserCategoryMembership, Form
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import FormCreationForm
-from .models import CustomUser, Tag, Category
-
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Tag, Category, CustomUser, Form
-from .forms import FormCreationForm
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import CustomUser, Tag, Category
-from .forms import FormCreationForm
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import CustomUser, Tag, Category
-from .forms import FormCreationForm
 
 @login_required
 def create_form(request):
@@ -194,9 +149,7 @@ def user_login(request):
 
 
 
-# views.py
-from django.shortcuts import render
-from .models import CustomUser  
+
 
 def user_list(request):
     # Fetch users with the 'manager' role
@@ -206,65 +159,49 @@ def user_list(request):
 
 
 
-from django.db.models import Q
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .models import Form
-
+from django.db.models import Q
+from .models import Form  # Ensure you import the Form model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Form
-
-from django.db.models import Q
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
+from .models import Form
 @login_required
 def form_list(request):
     user = request.user
 
-    # For users with the 'user-access-to-all-users-with-role-user' sub-role
+    # For users with the 'user' role
     if user.role == 'user':
-        if user.sub_role == 'user-access-to-all-users-with-role-user':
-            # Include forms where the user is either the sender or an assigned user
-            forms = Form.objects.filter(
-                Q(sender=user) | 
-                Q(assigned_users=user)  # Using assigned_users field
-            ).distinct()
-        else:
-            # For regular users, only show forms where they are the sender
-            forms = Form.objects.filter(sender=user).distinct()
+        # Include forms where the user is either the sender or an assigned user
+        forms = Form.objects.filter(
+            Q(sender=user) | 
+            Q(assigned_users=user)  # Using assigned_users field
+        ).distinct()
 
     # For managers
     elif user.role == 'manager':
-        # No sub-role check is needed for managers; they can access forms where they are assigned as a manager
-        if user.sub_role == 'manager-access-to-all-users-with-role-manager':
-            # Managers with sub-role can access forms where they are an assigned manager, allowed manager, or if the sender is a user
-            forms = Form.objects.filter(
-                Q(assigned_managers=user) |  # Forms where the user is assigned as a manager
-                Q(allowed_managers=user) |  # Forms where the user is allowed as a manager
-                Q(sender__role='user')  # Or forms sent by a user
-            ).distinct()
-        else:
-            # Managers without sub-role can still view forms where they are assigned as a manager or allowed as a manager
-            forms = Form.objects.filter(
-                Q(assigned_managers=user) |
-                Q(allowed_managers=user)  # Using allowed_managers field
-            ).distinct()
+        # Managers can see forms where they are either assigned or allowed
+        forms = Form.objects.filter(
+            Q(assigned_managers=user) |  # Forms where the user is assigned as a manager
+            Q(allowed_managers=user)    # Forms where the user is allowed as a manager
+        ).distinct()
 
-    # Admin or other roles
+    # For admins or other roles
     else:
         # Admins see all forms
         forms = Form.objects.all()
 
     # Prefetch related fields to optimize queries (tags and category)
-    forms = forms.prefetch_related('tags', 'category')  # Correct 'category' not 'categories'
+    forms = forms.prefetch_related('tags', 'category', 'verification_logs')  # Include verification_logs
 
     return render(request, 'form/form_list.html', {'forms': forms})
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Form
+
+
+
+
 
 @login_required
 def assigned_forms_view(request):
@@ -282,10 +219,6 @@ def assigned_forms_view(request):
     return render(request, 'form/assigned-pages/assigned_forms.html', context)
 
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Form
-
 @login_required
 def forms_assigned_to_manager(request):
     # Get the logged-in user
@@ -298,22 +231,92 @@ def forms_assigned_to_manager(request):
     return render(request, 'forms/assigned-pages/assigned_to_manager.html', {'forms': forms})
 
 
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from django.utils import timezone
+from app.models import Form, FormVerificationLog
+
+def is_admin_or_manager(user):
+    return user.role in ['admin', 'manager']
+
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import Form, FormVerificationLog
+
 @login_required
-@user_passes_test(is_manager)
+@user_passes_test(is_admin_or_manager)
 def verify_form(request, form_id):
     form = get_object_or_404(Form, id=form_id)
-    if form.status == 'Pending':
-        form.status = 'Verified'
-        form.verified_by = request.user  # Track who verified the form
-        form.verified_at = timezone.now()  # Track verification time
+
+    # Ensure the user has permission to verify the form
+    if not (request.user.role == 'admin' or request.user in form.assigned_managers.all() or request.user in form.allowed_managers.all()):
+        messages.error(request, 'You are not authorized to verify this form.')
+        return redirect('form_list')
+
+    # Create a verification log entry
+    verification_log = FormVerificationLog(
+        form=form,
+        verified_by=request.user,
+        action='Verified'
+    )
+    verification_log.save()
+
+    # Mark the form as verified if it's the first verification
+    if not form.verified:  # First-time verification
+        form.verified = True
+        form.verified_by = request.user  # Store who verified the form
         form.save()
-        messages.success(request, 'Form has been verified.')
-    else:
-        messages.warning(request, 'This form has already been verified.')
+
+    messages.success(request, 'Form successfully verified.')
     return redirect('form_list')
 
 
+    # Display a success message
+    messages.success(request, f'Form has been verified by {request.user.username}.')
+    return redirect('form_list')
 
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from django.utils import timezone
+from app.models import Form, FormVerificationLog
+
+def is_admin_or_manager(user):
+    return user.role in ['admin', 'manager']
+
+@login_required
+@user_passes_test(is_admin_or_manager)
+def form_detail(request, form_id):
+    form = get_object_or_404(Form, id=form_id)
+    
+    # Handle form verification if it's a POST request
+    if request.method == 'POST':
+        # Check if the user is allowed to verify the form
+        if form.verified:
+            messages.warning(request, 'This form has already been verified.')
+        else:
+            # Log the verification action
+            verification_log = FormVerificationLog(
+                form=form,
+                verified_by=request.user,
+                action='Verified'
+            )
+            verification_log.save()
+
+            # Mark the form as verified if needed
+            form.verified = True
+            form.save()
+            messages.success(request, f'Form has been verified by {request.user.username}.')
+
+        return redirect('form_detail', form_id=form.id)
+
+    # Pass the form and its verification logs to the template
+    return render(request, 'form/form_detail.html', {'form': form})
 
 
 def is_manager(user):
@@ -354,6 +357,13 @@ def edit_form(request, form_id):
 
 
 
+def custom_logout(request):
+    """
+    Logs out the user and redirects to the login page or home page.
+    """
+    logout(request)  # Django's built-in logout function
+    return redirect('login')  # Redirect to the login page or any page of your choice
+
 
 def user_login(request):
     if request.method == 'POST':
@@ -374,24 +384,83 @@ def user_login(request):
     # Render the login page with the form
     return render(request, 'login/login.html', {'form': form})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Form, CustomUser
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Form, CustomUser
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Form, CustomUser
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Form, CustomUser
+
 @login_required
 def send_form(request, form_id):
     form = get_object_or_404(Form, id=form_id)
 
+    # If the request is a POST, handle form submission
     if request.method == 'POST':
+        # Check if the form is already verified
         if form.verified:
             messages.error(request, 'This form has already been verified and cannot be sent again.')
             return redirect('form_list')
-        if request.user.role == 'manager' and form.sender_name == request.user.username:
+
+        # Prevent the form from being sent to the current user (managers cannot send to themselves)
+        if request.user.role == 'manager' and form.sender == request.user:
             messages.error(request, 'You cannot send a form to yourself.')
             return redirect('form_list')
 
-        form.verified = True
-        form.save()
-        messages.success(request, 'Form sent successfully and marked as verified!')
+        # Handle assigning allowed managers based on user role
+        allowed_manager_ids = request.POST.getlist('allowed_managers')
+
+        if allowed_manager_ids:
+            try:
+                # Clear existing allowed managers and assign the selected ones
+                form.allowed_managers.clear()
+                for manager_id in allowed_manager_ids:
+                    assigned_manager = CustomUser.objects.get(id=manager_id, role='manager')
+                    form.allowed_managers.add(assigned_manager)
+                messages.success(request, 'Form successfully assigned to selected allowed manager(s).')
+            except CustomUser.DoesNotExist:
+                messages.error(request, 'One or more selected managers do not exist.')
+
+        # Don't mark as verified yet - wait for the form to be "officially" verified by allowed managers
+        messages.success(request, 'Form sent successfully!')
         return redirect('form_list')
 
-    return render(request, 'form/send_form.html', {'form': form})
+    # Determine allowed managers based on user role
+    if request.user.role == 'admin':
+        # Admins can see all managers and admin users
+        allowed_managers = CustomUser.objects.filter(role__in=['manager', 'admin'])
+    elif request.user.role == 'manager' and request.user.sub_role == 'manager-access-to-all-users-with-role-manager':
+        # Managers with the sub-role can see all other managers and admins
+        allowed_managers = CustomUser.objects.filter(role__in=['manager', 'admin'])
+    else:
+        # Managers with other roles may have restricted access (only managers with role 'manager')
+        allowed_managers = CustomUser.objects.filter(role='manager')
+
+    # Handle verification button logic
+    can_verify = False
+    if request.user in form.assigned_managers.all() or request.user in form.allowed_managers.all():
+        if not form.verified and form.verified_by != request.user:
+            can_verify = True
+
+    return render(request, 'form/send_form.html', {
+        'form': form,
+        'allowed_managers': allowed_managers,
+        'can_verify': can_verify,  # Pass this flag to the template
+    })
+
 
 @login_required
 def revert_version(request, form_id, version_number):

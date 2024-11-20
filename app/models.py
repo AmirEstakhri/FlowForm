@@ -137,6 +137,19 @@ class Form(models.Model):
         verbose_name = 'Form'
         verbose_name_plural = 'Forms'
 
+from django.db import models
+from app.models import CustomUser  # Make sure to import CustomUser
+
+class FormVerificationLog(models.Model):
+    form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='verification_logs')
+    verified_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)  # Use CustomUser instead of User
+    verified_at = models.DateTimeField(auto_now_add=True)
+    action = models.CharField(max_length=255, blank=True, null=True)  # Optional action (e.g., 'Verified')
+
+    def __str__(self):
+        return f"{self.verified_by} verified form {self.form.id} at {self.verified_at}"
+
+
 
 # FormVersion model to handle version control for forms
 class FormVersion(models.Model):

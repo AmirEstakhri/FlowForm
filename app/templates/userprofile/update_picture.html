@@ -1,21 +1,37 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Profile Picture</title>
+    <link rel="stylesheet" href="{% static 'css/profile_update.css' %}">
 </head>
 <body>
-    <h2>Update Profile Picture</h2>
-    
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save Changes</button>
-    </form>
 
-    {% if user.profile.profile_picture %}
-        <p>Current Profile Picture: <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" width="100"></p>
-    {% endif %}
+    <div class="container">
+        <h2>Update Profile Picture</h2>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+            <button type="submit">Save Changes</button>
+        </form>
+
+        {% if user.profile.profile_picture %}
+            <div class="profile-picture">
+                <p>Current Profile Picture:</p>
+                <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture">
+            </div>
+        {% endif %}
+
+        <div class="home-button">
+            <a href="{% url 'homepage' %}" class="home-link">Home</a>
+        </div>
+    </div>
+
 </body>
 </html>

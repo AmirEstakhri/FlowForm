@@ -1,51 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assigned Forms</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #007bff;
-        }
-        .form-item {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: #f9f9f9;
-        }
-        .form-item strong {
-            color: #555;
-        }
-        .form-item p {
-            margin: 5px 0;
-        }
-        .no-forms {
-            text-align: center;
-            padding: 20px;
-            color: #777;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% load static %}  <!-- Add this line to load the static tag -->
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'css/assigned_forms.css' %}">
+
     <div class="container">
         <h1>Forms Assigned to You</h1>
 
@@ -54,21 +13,60 @@
                 <div class="form-item">
                     <p><strong>Title:</strong> {{ form.title }}</p>
                     <p><strong>Sender:</strong> {{ form.sender_signature }}</p>
+                    <p><strong>Sender's Email:</strong> {{ form.sender_email }}</p>
                     <p><strong>Receiver(s):</strong> {{ form.receiver }}</p>
+                    <p><strong>Receiver's Signature:</strong> {{ form.receiver_signature }}</p> <!-- Added receiver signature -->
                     <p><strong>Content:</strong> {{ form.content }}</p>
                     <p><strong>Priority:</strong> {{ form.priority }}</p>
                     <p><strong>Tags:</strong> 
                         {% for tag in form.tags.all %}
-                            {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                            <span>{{ tag.name }}{% if not forloop.last %}, {% endif %}</span>
                         {% endfor %}
                     </p>
-                    <p><strong>Categories:</strong> 
-                        {% for category in form.categories.all %}
-                            {{ category.name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
+                    <p><strong>Category:</strong> 
+                        {% if form.category %}
+                            {{ form.category.name }}
+                        {% else %}
+                            None
+                        {% endif %}
                     </p>
+                    
                     <p><strong>Date Created:</strong> {{ form.created_at|date:"F j, Y, g:i a" }}</p>
                     <p><strong>Last Updated:</strong> {{ form.updated_at|date:"F j, Y, g:i a" }}</p>
+                    <p><strong>Assigned Users:</strong>
+                        {% for user in form.assigned_users.all %}
+                            <span>{{ user.username }}{% if not forloop.last %}, {% endif %}</span>
+                        {% endfor %}
+                    </p>
+                    <p><strong>Assigned Managers:</strong>
+                        {% for manager in form.assigned_managers.all %}
+                            <span>{{ manager.username }}{% if not forloop.last %}, {% endif %}</span>
+                        {% endfor %}
+                    </p>
+                    <p><strong>Allowed Managers:</strong>
+                        {% for allowed_manager in form.allowed_managers.all %}
+                            <span>{{ allowed_manager.username }}{% if not forloop.last %}, {% endif %}</span>
+                        {% endfor %}
+                    </p>
+                    <p><strong>Form Status:</strong> {{ form.status }}</p>
+                    <p><strong>Additional Info:</strong> {{ form.additional_info }}</p>
+                    <p><strong>Verified:</strong> {{ form.verified }}</p> <!-- Show verification status -->
+                    <p><strong>Verified By:</strong> 
+                        {% if form.verified_by %}
+                            {{ form.verified_by.username }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                    <p><strong>Verified At:</strong> 
+                        {% if form.verified_at %}
+                            {{ form.verified_at|date:"F j, Y, g:i a" }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                    <p><strong>Last Modified:</strong> {{ form.last_modified|date:"F j, Y, g:i a" }}</p>
+                    <p><strong>Form URL:</strong> <a href="{{ form.get_absolute_url }}" target="_blank">View Form</a></p>
                 </div>
             {% endfor %}
         {% else %}
@@ -77,5 +75,4 @@
             </div>
         {% endif %}
     </div>
-</body>
-</html>
+{% endblock %}

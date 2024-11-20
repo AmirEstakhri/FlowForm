@@ -1,30 +1,54 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Django Form App{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>{% block title %}Django Form Management{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/navbar_styles.css' %}">
+    {% block extra_styles %}{% endblock %}
 </head>
 <body>
+    <!-- Base Header (Navbar) -->
     <header>
-        <h1>Django Form Management System</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'form_list' %}">My Forms</a></li>
-                <li><a href="{% url 'create_form' %}">Create Form</a></li>
+        <div class="navbar">
+            <!-- Navbar Brand -->
+            <div class="navbar-brand">
+                <h1><a href="/"> Form Management</a></h1>
+            </div>
+
+            <!-- Hamburger Icon for Mobile -->
+            <button class="navbar-toggle" onclick="toggleNavbar()">☰</button>
+
+            <!-- Navbar Links -->
+            <ul class="navbar-nav">
+                <li><a href="{% url 'form_list' %}" class="{% if request.path == '/form-list/' %}active{% endif %}">My Forms</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
+                <li><a href="{% url 'create_form' %}" class="nav-link">Create a New Form</a></li>
+                <li><a href="{% url 'form_list' %}" class="nav-link">View All Forms</a></li>
+                <li><a href="{% url 'admin:index' %}" class="nav-link">Admin Dashboard</a></li>
+                <li><a href="{% url 'assigned_forms' %}" class="nav-link">View Assigned Forms</a></li>
+                <li><a href="{% url 'userprofile:view_profile' %}" class="nav-link">Profile</a></li>
             </ul>
-        </nav>
+        </div>
     </header>
 
+    <!-- Content Section -->
     <div class="content">
         {% block content %}
         {% endblock %}
     </div>
 
     <footer>
-        <p>&copy; 2024 Django Form Management</p>
+        <!-- Optional Footer -->
     </footer>
+
+    <!-- JS for mobile navbar toggle -->
+    <script>
+        function toggleNavbar() {
+            const navbar = document.querySelector('.navbar-nav');
+            navbar.classList.toggle('open');
+        }
+    </script>
 </body>
 </html>

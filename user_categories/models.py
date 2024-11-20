@@ -18,7 +18,21 @@ class UserCategoryMembership(models.Model):
             models.UniqueConstraint(fields=['user'], name='unique_user_per_category')
         ]
 
+    def save(self, *args, **kwargs):
+        # Check if the user has the role of 'manager'
+        if self.user.role == 'manager':
+            # Check if there is already a manager in this category
+            existing_manager = UserCategoryMembership.objects.filter(
+                category=self.category, user__role='manager'
+            ).exclude(user=self.user)  # Exclude the current user to allow updates
+            if existing_manager.exists():
+                raise ValueError(f"Category '{self.category.name}' can only have one manager.")
+
+        # Call the parent save method to save the instance
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.user.username} in {self.category.name}"
+
     
     

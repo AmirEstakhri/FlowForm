@@ -3,6 +3,8 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import user_login
+from django.urls import path
+from .views import custom_logout
 
 
 urlpatterns = [
@@ -18,6 +20,11 @@ urlpatterns = [
     path('managers/', views.user_list, name='user_list'),  # URL for your manager list view
     path('assigned-forms/', views.assigned_forms_view, name='assigned_forms'),
     path('forms/assigned-to-manager/', views.forms_assigned_to_manager, name='forms_assigned_to_manager'),
+    path('logout/', custom_logout, name='logout'),  # Add this path with the name 'logout'
+    path('form/<int:form_id>/', views.form_detail, name='form_detail'),
+
+
+    
 
 
 

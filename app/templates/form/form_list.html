@@ -1,113 +1,132 @@
+{% extends 'base.html' %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form List</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body>
-    <div class="container">
-        <h1>All Forms</h1>
+{% block content %}
+<div class="container">
+    <h1>All Forms</h1>
 
-        <!-- Filter/Search Section -->
-        <form method="get" action="{% url 'form_list' %}" class="search-form">
-            <label for="search">Search by Title or Content:</label>
-            <input type="text" id="search" name="search" placeholder="Search..." value="{{ request.GET.search }}">
-            <button type="submit">Search</button>
-        </form>
+    <!-- Filter/Search Section -->
+    <form method="get" action="{% url 'form_list' %}" class="search-form">
+        <label for="search">Search by Title or Content:</label>
+        <input type="text" id="search" name="search" placeholder="Search..." value="{{ request.GET.search }}">
+        <button type="submit">Search</button>
+    </form>
 
-        <!-- Forms Table -->
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
+    <!-- Forms Table -->
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Form ID</th>
+                    <th>Title</th>
+                    <th>Sender</th>
+                    <th>Sender's Signature</th>
+                    <th>Receiver</th>
+                    <th>Receiver's Signature</th>
+                    <th>Content</th>
+                    <th>Tags</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Verified</th>
+                    <th>Assigned Users</th>
+                    <th>Allowed Managers</th>
+                    <th>Assigned Managers</th>
+                    <th>Verification Log</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in forms %}
                     <tr>
-                        <th>Form ID</th>
-                        <th>Title</th>
-                        <th>Sender</th>
-                        <th>Sender's Signature</th>
-                        <th>Receiver</th>
-                        <th>Receiver's Signature</th>
-                        <th>Content</th>
-                        <th>Tags</th>
-                        <th>Category</th>
-                        <th>Priority</th>
-                        <th>Submitted By</th>
-                        <th>Verified</th>
-                        <th>Assigned Users</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for form in forms %}
-                        <tr>
-                            <td>{{ form.id }}</td>
-                            <td>{{ form.title|default:"N/A" }}</td>
-                            <td>{{ form.sender|default:"N/A" }}</td>
-                            <td>{{ form.sender_signature|default:"N/A" }}</td>
-                            <td>{{ form.receiver|default:"N/A" }}</td>
-                            <td>{{ form.receiver_signature|default:"N/A" }}</td>
-                            <td>{{ form.content|default:"N/A" }}</td>
-                            <td>
-                                {% for tag in form.tags.all %}
-                                    {{ tag.name }}{% if not forloop.last %}, {% endif %}
-                                {% empty %}
-                                    N/A
+                        <td>{{ form.id }}</td>
+                        <td>{{ form.title|default:"N/A" }}</td>
+                        <td>{{ form.sender|default:"N/A" }}</td>
+                        <td>{{ form.sender_signature|default:"N/A" }}</td>
+                        <td>{{ form.receiver|default:"N/A" }}</td>
+                        <td>{{ form.receiver_signature|default:"N/A" }}</td>
+                        <td>{{ form.content|default:"N/A" }}</td>
+                        <td>
+                            {% for tag in form.tags.all %}
+                                {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %} N/A {% endfor %}
+                        </td>
+                        <td>{{ form.category.name|default:"N/A" }}</td>
+                        <td>{{ form.priority|default:"N/A" }}</td>
+                        <td>{{ form.verified|yesno:"Yes,No" }}</td>
+                        <td>
+                            {% if form.assigned_users.all %}
+                                {% for user in form.assigned_users.all %}
+                                    {{ user.username }}{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
-                            </td>
-                            <td>{{ form.category.name|default:"N/A" }}</td>
-                            <td>{{ form.priority|default:"N/A" }}</td>
-                            <td>{{ form.sender_name|default:"N/A" }}</td>
-                            <td>{{ form.verified|yesno:"Yes,No" }}</td>
-                            <td>
-                                <!-- Assigned Users Section -->
-                                {% if form.assigned_users.all %}
-                                    {% for user in form.assigned_users.all %}
-                                        {{ user.username }}{% if not forloop.last %}, {% endif %}
+                            {% else %} N/A {% endif %}
+                        </td>
+                        <td>
+                            {% if form.allowed_managers.all %}
+                                {% for manager in form.allowed_managers.all %}
+                                    {{ manager.username }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %} N/A {% endif %}
+                        </td>
+                        <td>
+                            {% if form.assigned_managers.all %}
+                                {% for manager in form.assigned_managers.all %}
+                                    {{ manager.username }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %} N/A {% endif %}
+                        </td>
+                        <td>
+                            <!-- Display verification history -->
+                            {% if form.verification_logs.all %}
+                                <ul>
+                                    {% for log in form.verification_logs.all %}
+                                        <li>{{ log.verified_by.username }} verified at {{ log.verified_at|date:"Y-m-d H:i" }}{% if log.action %} - Action: {{ log.action }}{% endif %}</li>
                                     {% endfor %}
+                                </ul>
+                            {% else %}
+                                No verification history.
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Verify Button: Show if the user is an assigned or allowed manager and form is not verified by the user -->
+                            {% if request.user in form.assigned_managers.all or request.user in form.allowed_managers.all %}
+                                {% if form.verified_by != request.user %}
+                                    <a href="{% url 'verify_form' form.id %}" class="btn-action">Verify</a> |
                                 {% else %}
-                                    N/A
+                                    <!-- Hide the button for the user who has verified the form -->
+                                    <span class="btn-action" style="color: gray;">Verified</span> |
                                 {% endif %}
-                            </td>
-                            <td>
-                                <!-- Actions Section -->
-                                {% if request.user.role == 'manager' and request.user in form.assigned_managers.all %}
-                                    {% if not form.verified %}
-                                        <a href="{% url 'verify_form' form.id %}">Verify</a> |
-                                    {% endif %}
-                                {% endif %}
-                                {% if request.user in form.assigned_users.all %}
-                                    <span>View Only</span> |
-                                {% endif %}
-                                {% if request.user == form.sender %}
-                                    <a href="{% url 'edit_form' form.id %}">Edit</a> |
-                                {% endif %}
-                                <a href="{% url 'send_form' form.id %}">Send</a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="14">No forms found.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination">
-            {% if forms.has_previous %}
-                <a href="?page=1">&laquo; First</a>
-                <a href="?page={{ forms.previous_page_number }}">Previous</a>
-            {% endif %}
-            <span>Page {{ forms.number }} of {{ forms.paginator.num_pages }}</span>
-            {% if forms.has_next %}
-                <a href="?page={{ forms.next_page_number }}">Next</a>
-                <a href="?page={{ forms.paginator.num_pages }}">Last &raquo;</a>
-            {% endif %}
-        </div>
+                            {% endif %}
+                        
+                            {% if request.user in form.assigned_users.all %}
+                                <span>View Only</span> |
+                            {% endif %}
+                            {% if request.user == form.sender %}
+                                <a href="{% url 'edit_form' form.id %}" class="btn-action">Edit</a> |
+                            {% endif %}
+                            <a href="{% url 'send_form' form.id %}" class="btn-action">Send</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="14">No forms found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-</body>
-</html>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if forms.has_previous %}
+            <a href="?page=1" class="btn-page">&laquo; First</a>
+            <a href="?page={{ forms.previous_page_number }}" class="btn-page">Previous</a>
+        {% endif %}
+        <span class="page-info">Page {{ forms.number }} of {{ forms.paginator.num_pages }}</span>
+        {% if forms.has_next %}
+            <a href="?page={{ forms.next_page_number }}" class="btn-page">Next</a>
+            <a href="?page={{ forms.paginator.num_pages }}" class="btn-page">Last &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

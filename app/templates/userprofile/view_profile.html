@@ -1,23 +1,43 @@
-<!-- userprofile/templates/userprofile/view_profile.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Profile</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 </head>
 <body>
-    <h2>{{ profile.user.username }}'s Profile</h2>
-    
-    {% if profile.profile_picture %}
-        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
-    {% endif %}
-    
-    <p>Bio: {{ profile.bio }}</p>
-    
-    <!-- Add a button to update the profile picture -->
-    <form action="{% url 'userprofile:update_profile_picture' %}" method="get">
-        <button type="submit">Update Profile Picture</button>
-    </form>
+    <div class="profile-container">
+        <div class="profile-header">
+            <h2>{{ profile.user.username }}'s Profile</h2>
+        </div>
+        
+        <div class="profile-picture">
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.username }}'s Profile Picture">
+            {% else %}
+                <div class="placeholder-picture">No Profile Picture</div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-bio">
+            <h3>Bio</h3>
+            <p>{{ profile.bio }}</p>
+        </div>
+        
+        <div class="profile-actions">
+            <form action="{% url 'userprofile:update_profile_picture' %}" method="get">
+                <button type="submit" class="btn">Update Profile Picture</button>
+            </form>
+        </div>
+        
+        <!-- Added button to go to the home page -->
+        <div class="profile-actions">
+            <a href="{% url 'homepage' %}" class="btn" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #007bff; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; transition: background-color 0.3s ease; margin-top: 20px;">
+                Go to Home
+            </a>
+        </div>
+    </div>
 </body>
 </html>

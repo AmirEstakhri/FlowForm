@@ -21,6 +21,10 @@ urlpatterns = [
     # Admin URL
     path('admin/', admin.site.urls),
     
+        # Admin dashbord app
+
+    path('admin-dashboard/', include('admin_dashboard.urls', namespace='admin_dashboard')),
+
     # Include the URLs of the 'app' app, should be placed at the end
     path('', include('app.urls')),  # This links the app's URLs (homepage and others)
 ]

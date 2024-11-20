@@ -1,0 +1,33 @@
+{% extends "admin_dashboard/base.html" %}
+{% load custom_filters %}
+
+{% block content %}
+    <h1>{{ verbose_name_plural }}</h1>
+    <a href="{% url 'admin_dashboard:model_add' model_name %}">Add New</a>
+
+    <table>
+        <thead>
+            <tr>
+                <!-- Loop through the fields and create a header for each -->
+                {% for field in fields %}
+                    <th>{{ field.verbose_name }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loop through the objects and render each object's field values -->
+            {% for object in objects %}
+                <tr>
+                    {% for field in fields %}
+                        <!-- Use the 'attr' filter to get the value of the field dynamically -->
+                        <td>{{ object|attr:field.name }}</td>
+                    {% endfor %}
+                    <td>
+                        <!-- Add action buttons (edit, delete, etc.) here -->
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

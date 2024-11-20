@@ -1,0 +1,20 @@
+
+{% extends "admin_dashboard/base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <h1>Welcome to the Admin Dashboard</h1>
+    <table>
+        <tr>
+            <th>Model</th>
+            <th>Count</th>
+        </tr>
+        {% for model in models %}
+        <tr>
+            <td><a href="{% url 'admin_dashboard:model_list' model.name %}">{{ model.name }}</a></td>
+            <td>{{ model.count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

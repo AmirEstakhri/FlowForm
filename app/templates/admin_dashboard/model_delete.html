@@ -1,0 +1,10 @@
+{% extends "admin_dashboard/base.html" %}
+{% block content %}
+    <h1>Delete {{ model._meta.verbose_name }}</h1>
+    <p>Are you sure you want to delete this {{ model._meta.verbose_name }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Confirm</button>
+        <a href="{% url 'admin_dashboard:model_list' model_name %}">Cancel</a>
+    </form>
+{% endblock %}

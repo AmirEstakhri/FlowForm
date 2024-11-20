@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Form Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ form.title }}</h1>
+
+    <!-- Display messages if any -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Form Details -->
+    <div class="form-details">
+        <p><strong>Title:</strong> {{ form.title }}</p>
+        <p><strong>Sender's Signature:</strong> {{ form.sender_signature }}</p>
+        <p><strong>Receiver:</strong> {{ form.receiver|default:"Not assigned" }}</p>
+        <p><strong>Content:</strong> {{ form.content }}</p>
+        <p><strong>Priority:</strong> {{ form.priority }}</p>
+    </div>
+
+    <!-- Verification Logs -->
+    <h3>Verification History</h3>
+    <ul>
+        {% for log in form.verification_logs.all %}
+            <li>{{ log.verified_by.username }} verified the form at {{ log.verified_at }}.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Verification Form (if allowed) -->
+    {% if user.role in ['admin', 'manager'] %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Verify Form</button>
+        </form>
+    {% else %}
+        <p>You do not have permission to verify this form.</p>
+    {% endif %}
+    
+    <!-- Back to Form List -->
+    <a href="{% url 'form_list' %}" class="btn btn-secondary">Back to Form List</a>
+</div>
+{% endblock %}

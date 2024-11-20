@@ -1,0 +1,83 @@
+/* Reset conflicting styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa !important;
+    color: #333;
+}
+
+/* Profile container styles */
+.profile-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #fff !important;
+    padding: 20px !important;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    text-align: center !important;
+}
+
+/* Profile header styles */
+.profile-header h2 {
+    margin-bottom: 20px !important;
+    color: #007bff !important;
+    font-size: 24px;
+}
+
+/* Profile picture styles */
+.profile-picture img {
+    width: 150px !important;
+    height: 150px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    border: 4px solid #007bff !important;
+    margin-bottom: 20px !important;
+}
+
+.placeholder-picture {
+    width: 150px;
+    height: 150px;
+    background: #ddd;
+    color: #777;
+    line-height: 150px;
+    border-radius: 50%;
+    border: 4px solid #ccc;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Bio section styles */
+.profile-bio h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 20px !important;
+    color: #555 !important;
+}
+
+.profile-bio p {
+    font-size: 16px !important;
+    color: #666 !important;
+}
+
+/* Actions section styles */
+.profile-actions {
+    margin-top: 20px !important;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff !important;
+    background-color: #007bff !important;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.btn:hover {
+    background-color: #0056b3 !important;
+}
