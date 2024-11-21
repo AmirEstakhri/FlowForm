@@ -1,20 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils import timezone
-from django.db.models import Q
-from .models import Form, CustomUser, Tag, Category, UserCategory, UserCategoryMembership, FormVersion
-from .forms import FormCreationForm, LoginForm
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
-from app.utils import is_manager  # Assuming `is_manager` is a utility function to check roles
-import logging
+from django.db.models import Q
+from django.utils import timezone
+from django.contrib.auth.forms import AuthenticationForm
+
+from .models import (
+    Form,
+    CustomUser,
+    Tag,
+    Category,
+    UserCategory,
+    UserCategoryMembership,
+    FormVersion,
+    FormVerificationLog,
+)
+from .forms import (
+    FormCreationForm,
+    LoginForm,
+    FormCreateUpdateForm,
+    FormEditForm,
+)
+
+from app.utils import is_manager  # Utility function for role checks
 from user_categories.models import UserCategoryMembership
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Form, Tag, Category
-from .forms import FormEditForm
+
+import logging
+
 
 @login_required
 def my_forms(request):
@@ -172,20 +185,6 @@ def user_list(request):
 
 
 
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from .models import Form  # Ensure you import the Form model
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.shortcuts import render
-from .models import Form
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.db.models import Q
-from .models import Form
-
 @login_required
 def form_list(request):
     user = request.user
@@ -253,21 +252,11 @@ def forms_assigned_to_manager(request):
     return render(request, 'forms/assigned-pages/assigned_to_manager.html', {'forms': forms})
 
 
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
-from django.utils import timezone
-from app.models import Form, FormVerificationLog
-
 def is_admin_or_manager(user):
     return user.role in ['admin', 'manager']
 
 
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Form, FormVerificationLog
+
 @login_required
 def verify_form(request, form_id):
     form = get_object_or_404(Form, id=form_id)
@@ -294,54 +283,22 @@ def verify_form(request, form_id):
 
 
 
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
-from django.utils import timezone
-from app.models import Form, FormVerificationLog
-
 def is_admin_or_manager(user):
     return user.role in ['admin', 'manager']
 
+from django.shortcuts import render, get_object_or_404
+from .models import Form
+
 @login_required
-@user_passes_test(is_admin_or_manager)
 def form_detail(request, form_id):
     form = get_object_or_404(Form, id=form_id)
-    
-    # Handle form verification if it's a POST request
-    if request.method == 'POST':
-        # Check if the user is allowed to verify the form
-        if form.verified:
-            messages.warning(request, 'This form has already been verified.')
-        else:
-            # Log the verification action
-            verification_log = FormVerificationLog(
-                form=form,
-                verified_by=request.user,
-                action='Verified'
-            )
-            verification_log.save()
-
-            # Mark the form as verified if needed
-            form.verified = True
-            form.save()
-            messages.success(request, f'Form has been verified by {request.user.username}.')
-
-        return redirect('form_detail', form_id=form.id)
-
-    # Pass the form and its verification logs to the template
     return render(request, 'form/form_detail.html', {'form': form})
 
 
 def is_manager(user):
     return user.role == 'manager' or user.role == 'user'
 
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Form, Tag, Category
-from .forms import FormCreateUpdateForm  # Reuse or create a separate form class for both creating and updating
+# Reuse or create a separate form class for both creating and updating
 
 @login_required
 def edit_form(request, form_id):
@@ -398,17 +355,6 @@ def user_login(request):
     return render(request, 'login/login.html', {'form': form})
 
 
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .models import Form, CustomUser
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
-from django.db.models import Q
-from .models import Form, CustomUser
 
 @login_required
 def send_form(request, form_id):

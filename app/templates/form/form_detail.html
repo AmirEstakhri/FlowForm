@@ -1,46 +1,103 @@
 {% extends 'base.html' %}
 
-{% block title %}Form Details{% endblock %}
-
 {% block content %}
-<div class="container">
-    <h1>{{ form.title }}</h1>
-
-    <!-- Display messages if any -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
-    <!-- Form Details -->
-    <div class="form-details">
-        <p><strong>Title:</strong> {{ form.title }}</p>
-        <p><strong>Sender's Signature:</strong> {{ form.sender_signature }}</p>
-        <p><strong>Receiver:</strong> {{ form.receiver|default:"Not assigned" }}</p>
-        <p><strong>Content:</strong> {{ form.content }}</p>
-        <p><strong>Priority:</strong> {{ form.priority }}</p>
+<div style="margin: 30px auto; max-width: 800px; font-family: Arial, sans-serif;">
+    <h1 style="text-align: center; color: #333;">Form Details</h1>
+    <div style="border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <div style="background-color: #007bff; color: #fff; padding: 15px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0;">{{ form.title|default:"Form Details" }}</h2>
+        </div>
+        <div style="padding: 20px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Form ID</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.id }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Title</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.title|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Sender</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.sender|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Sender's Signature</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.sender_signature|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Receiver</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.receiver|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Receiver's Signature</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.receiver_signature|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Content</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.content|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Tags</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        {% for tag in form.tags.all %}
+                            <span style="display: inline-block; background-color: #f0f0f0; padding: 5px 10px; margin: 2px; border-radius: 4px; font-size: 14px;">{{ tag.name }}</span>
+                        {% empty %}
+                            <span style="color: #999;">N/A</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Category</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.category.name|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Priority</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.priority|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Verified</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ form.verified|yesno:"Yes,No" }}</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Assigned Users</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        {% for user in form.assigned_users.all %}
+                            <span style="display: inline-block; background-color: #d1ecf1; padding: 5px 10px; margin: 2px; border-radius: 4px; font-size: 14px;">{{ user.username }}</span>
+                        {% empty %}
+                            <span style="color: #999;">N/A</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Allowed Managers</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        {% for manager in form.allowed_managers.all %}
+                            <span style="display: inline-block; background-color: #d4edda; padding: 5px 10px; margin: 2px; border-radius: 4px; font-size: 14px;">{{ manager.username }}</span>
+                        {% empty %}
+                            <span style="color: #999;">N/A</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Verification Log</th>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        {% if form.verification_logs.all %}
+                            <ul style="padding-left: 20px; margin: 0;">
+                                {% for log in form.verification_logs.all %}
+                                    <li>{{ log.verified_by.username }} - Verified at {{ log.verified_at|date:"Y-m-d H:i" }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span style="color: #999;">No verification history.</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+            <div style="text-align: center;">
+                <a href="{% url 'form_list' %}" style="display: inline-block; text-decoration: none; color: #fff; background-color: #007bff; padding: 10px 20px; border-radius: 4px; margin-top: 10px;">Back to All Forms</a>
+            </div>
+        </div>
     </div>
-
-    <!-- Verification Logs -->
-    <h3>Verification History</h3>
-    <ul>
-        {% for log in form.verification_logs.all %}
-            <li>{{ log.verified_by.username }} verified the form at {{ log.verified_at }}.</li>
-        {% endfor %}
-    </ul>
-
-    <!-- Verification Form (if allowed) -->
-    {% if user.role in ['admin', 'manager'] %}
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Verify Form</button>
-        </form>
-    {% else %}
-        <p>You do not have permission to verify this form.</p>
-    {% endif %}
-    
-    <!-- Back to Form List -->
-    <a href="{% url 'form_list' %}" class="btn btn-secondary">Back to Form List</a>
 </div>
 {% endblock %}

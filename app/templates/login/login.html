@@ -1,42 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
-<body>
-    <div class="container">
-        <h1>Login</h1>
+<body style="font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <div style="background: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); width: 100%; max-width: 400px;">
+        <h2 style="text-align: center; color: #333; margin-bottom: 20px;">Login</h2>
+        <form method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            {% csrf_token %}
+            <div>
+                <label for="username" style="display: block; font-weight: bold; color: #555;">Username:</label>
+                <input type="text" name="username" id="username" required 
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+            </div>
 
-        <!-- Display Success/Error Messages -->
+            <div>
+                <label for="password" style="display: block; font-weight: bold; color: #555;">Password:</label>
+                <input type="password" name="password" id="password" required 
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+            </div>
+
+            <button type="submit" 
+                    style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
+                Login
+            </button>
+        </form>
+
         {% if messages %}
-            <div class="messages">
+            <div class="messages" style="margin-top: 20px;">
                 {% for message in messages %}
-                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                    <p style="color: red; font-size: 14px; text-align: center;">{{ message }}</p>
                 {% endfor %}
             </div>
         {% endif %}
-
-        <form method="POST">
-            {% csrf_token %}
-
-            <!-- Render form fields dynamically -->
-            <div class="form-group">
-                <label for="username">Username:</label>
-                {{ form.username }}
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password:</label>
-                {{ form.password }}
-            </div>
-
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-
     </div>
 </body>
 </html>
