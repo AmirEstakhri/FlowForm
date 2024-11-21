@@ -27,6 +27,63 @@ from app.utils import is_manager  # Utility function for role checks
 from user_categories.models import UserCategoryMembership
 
 import logging
+from django.db.models import Q
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
+from .models import Form
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
+from .models import Form, Tag, Category
+
+@staff_member_required
+def admin_search_forms(request):
+    forms = Form.objects.all()
+
+    # Get individual search fields
+    title = request.GET.get('title', '')
+    content = request.GET.get('content', '')
+    sender = request.GET.get('sender', '')
+    receiver = request.GET.get('receiver', '')
+    tags = request.GET.get('tags', '')
+    category = request.GET.get('category', '')
+    priority = request.GET.get('priority', '')
+    verified = request.GET.get('verified', '')
+
+    # Filter based on the provided fields
+    if title:
+        forms = forms.filter(title__icontains=title)
+    if content:
+        forms = forms.filter(content__icontains=content)
+    if sender:
+        forms = forms.filter(sender__icontains=sender)
+    if receiver:
+        forms = forms.filter(receiver__icontains=receiver)
+    if tags:
+        forms = forms.filter(tags__name=tags)
+    if category:
+        forms = forms.filter(category__name=category)
+    if priority:
+        forms = forms.filter(priority=priority)
+    if verified:
+        if verified.lower() == "true":
+            forms = forms.filter(verified=True)
+        elif verified.lower() == "false":
+            forms = forms.filter(verified=False)
+
+    # Retrieve data for dropdowns
+    tags = Tag.objects.all()
+    categories = Category.objects.all()
+    priorities = Form.objects.values_list('priority', flat=True).distinct()
+
+    context = {
+        'forms': forms.distinct(),
+        'tags': tags,
+        'categories': categories,
+        'priorities': priorities,
+    }
+    return render(request, 'admin_search_forms.html', context)
+
 
 
 @login_required
