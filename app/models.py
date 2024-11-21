@@ -112,7 +112,8 @@ class Form(models.Model):
 
     # Foreign key to CustomUser for assigned manager
     assigned_managers = models.ManyToManyField(CustomUser, related_name="assigned_forms", blank=True, limit_choices_to={'role': 'manager'})
-    
+    assigned_admins = models.ManyToManyField(CustomUser, related_name="assigned_admin_forms", blank=True, limit_choices_to={'role': 'admin'})
+
     # Replace `added_users` with `assigned_users`
     assigned_users = models.ManyToManyField(
         CustomUser, 

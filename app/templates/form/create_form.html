@@ -17,8 +17,7 @@
             <a href="{% url 'homepage' %}" class="btn btn-secondary" style="text-decoration: none; padding: 10px 20px; background-color: #007BFF; color: white; border-radius: 5px;">Home</a>
         </div>
         <h1 style="text-align: center; font-size: 2.5rem; color: #4CAF50; margin-bottom: 20px;">Create a New Form</h1>
-
-        <!-- Displaying Success/Error Messages -->
+    
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -26,12 +25,11 @@
                 {% endfor %}
             </div>
         {% endif %}
-
+    
         <form method="post" novalidate>
             {% csrf_token %}
             {{ form.non_field_errors }}
-
-            <!-- Form Fields -->
+    
             <div class="form-group">
                 <label for="title">Title:</label>
                 {{ form.title }}
@@ -39,7 +37,7 @@
                     <div class="alert error">{{ form.title.errors }}</div>
                 {% endif %}
             </div>
-
+    
             <div class="form-group">
                 <label for="sender_signature">Sender's Signature:</label>
                 {{ form.sender_signature }}
@@ -47,7 +45,7 @@
                     <div class="alert error">{{ form.sender_signature.errors }}</div>
                 {% endif %}
             </div>
-
+    
             <div class="form-group">
                 <label for="receiver">Receiver:</label>
                 <input type="text" id="receiver" name="receiver" class="form-control" readonly />
@@ -55,7 +53,7 @@
                     <div class="alert error">{{ form.receiver.errors }}</div>
                 {% endif %}
             </div>
-
+    
             <div class="form-group">
                 <label for="content">Content:</label>
                 {{ form.content }}
@@ -63,8 +61,7 @@
                     <div class="alert error">{{ form.content.errors }}</div>
                 {% endif %}
             </div>
-            
-
+    
             <div class="form-group">
                 <label for="priority">Priority:</label>
                 {{ form.priority }}
@@ -72,7 +69,7 @@
                     <div class="alert error">{{ form.priority.errors }}</div>
                 {% endif %}
             </div>
-
+    
             <div class="form-group">
                 <label for="tags">Tags:</label>
                 <div id="id_tags" class="tags-checkboxes">
@@ -87,6 +84,7 @@
                     <div class="alert alert-danger mt-2">{{ form.tags.errors }}</div>
                 {% endif %}
             </div>
+    
             <div class="form-group">
                 <label for="categories">Categories:</label>
                 <select id="id_categories" name="categories" class="form-control">
@@ -99,39 +97,34 @@
                     <div class="alert alert-danger mt-2">{{ form.categories.errors }}</div>
                 {% endif %}
             </div>
-
-            <!-- Manager Search Section -->
+    
             <div class="form-group">
                 <label for="manager_search">Search for Managers:</label>
                 <input type="text" id="manager_search" placeholder="Search managers..." class="form-control">
                 <button type="button" id="search_manager_btn" class="btn btn-primary">Search</button>
             </div>
-
-            <!-- Manager Selection -->
+            
             <div class="form-group">
                 <label for="added_managers">Add Managers:</label>
-                <select id="added_managers" name="added_managers" class="form-control" multiple>
+                <select id="added_managers" name="added_managers" class="form-control" multiple {% if request.user.role == 'manager' %}required{% endif %}>
                     {% for manager in all_managers %}
                         <option value="{{ manager.id }}" class="manager-item">{{ manager.username }}</option>
                     {% endfor %}
                 </select>
                 <button type="button" class="btn btn-primary" id="add_manager_btn">Add Manager</button>
             </div>
-
-            <!-- User Section (Visible Only if User Has Sub-Role) -->
+    
             {% if request.user|has_subrole:"user-access-to-all-users-with-role-user" %}
             <div class="form-group">
                 <label for="user_search">Search for Users:</label>
                 <input type="text" id="user_search" placeholder="Search users..." class="form-control">
                 <button type="button" id="search_user_btn" class="btn btn-primary">Search</button>
             </div>
-
-            <!-- User Selection -->
+    
             <div class="form-group">
                 <label for="added_users">Add Users:</label>
                 <select id="added_users" name="added_users" class="form-control" multiple>
                     {% for user in all_users %}
-                        <!-- Prevent the current user's selection -->
                         {% if user.username != request.user.username %}
                             <option value="{{ user.id }}" class="user-item">{{ user.username }}</option>
                         {% endif %}
@@ -140,18 +133,32 @@
                 <button type="button" class="btn btn-primary" id="add_user_btn">Add User</button>
             </div>
             {% endif %}
-
-            <!-- Submit Button -->
+    
+            <!-- Manager Role: Section to Assign Admin -->
+            {% if request.user.role == "manager" %}
+            <div class="form-group">
+                <label for="assign_admin">Assign Admin:</label>
+                <select id="assign_admin" name="assign_admin" class="form-control">
+                    <option value="" disabled selected>Select an Admin</option>
+                    {% for admin in all_admins %}
+                        <option value="{{ admin.id }}" {% if admin.id in assigned_admins_ids %} selected {% endif %}>{{ admin.username }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.assign_admin.errors %}
+                    <div class="alert alert-danger mt-2">{{ form.assign_admin.errors }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            
             <button type="submit" class="btn btn-primary">Create Form</button>
         </form>
-
-        <!-- Assigned Managers Display -->
+    
         <div id="assigned_managers_list" class="assigned-list">
             <h3>Assigned Managers:</h3>
             <ul id="assigned_managers_display">
                 {% for manager in assigned_managers %}
                     <li class="chip">
-                        <!-- Add Avatar if available, or use a default image -->
                         <img src="{{ manager.profile_picture_url|default:'https://example.com/default-avatar.png' }}" alt="{{ manager.username }}" class="chip-avatar">
                         <span class="chip-text">{{ manager.username }}</span>
                         <button class="remove-manager-btn" data-manager-id="{{ manager.id }}">
@@ -164,14 +171,12 @@
                 {% endfor %}
             </ul>
         </div>
-        
-        <!-- Assigned Users Display -->
+    
         <div id="assigned_users_list" class="assigned-list">
             <h3>Assigned Users:</h3>
             <ul id="assigned_users_display">
                 {% for user in assigned_users %}
                     <li class="chip">
-                        <!-- Add Avatar if available, or use a default image -->
                         <img src="{{ user.profile_picture_url|default:'https://example.com/default-avatar.png' }}" alt="{{ user.username }}" class="chip-avatar">
                         <span class="chip-text">{{ user.username }}</span>
                         <button class="remove-user-btn" data-user-id="{{ user.id }}">
@@ -184,9 +189,27 @@
                 {% endfor %}
             </ul>
         </div>
-        
-
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if the user role is manager
+            if ('{{ request.user.role }}' === 'manager') {
+                const adminSelect = document.getElementById('assign_admin');
+                const receiverInput = document.getElementById('receiver');
+    
+                // Auto-fill receiver field when an admin is selected
+                adminSelect.addEventListener('change', function() {
+                    const selectedAdmin = adminSelect.options[adminSelect.selectedIndex];
+                    receiverInput.value = selectedAdmin ? selectedAdmin.textContent : '';
+                });
+            }
+        });
+    </script>
+    
+    
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Clear any pre-selected options on page load for Managers and Users

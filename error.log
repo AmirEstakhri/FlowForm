@@ -20496,3 +20496,19 @@ Traceback (most recent call last):
     raise FieldError(
 django.core.exceptions.FieldError: Unsupported lookup 'username' for CharField or join on the field not permitted.
 "GET /search/?title=&content=&sender=user1&receiver=&tags=&category=&priority=&verified= HTTP/1.1" 500 115008
+Internal Server Error: /create/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 158, in create_form
+    print(f"Assigned Users: {assigned_users}")
+                             ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'assigned_users' where it is not associated with a value
+"GET /create/ HTTP/1.1" 500 70243

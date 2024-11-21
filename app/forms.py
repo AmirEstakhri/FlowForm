@@ -64,12 +64,18 @@ class FormCreationForm(forms.ModelForm):
         required=False,
         label="Allowed Managers (view-only)"
     )  # Allow additional managers for viewing the form
+    assigned_admin = forms.ModelChoiceField(
+        queryset=CustomUser.objects.filter(role='admin'),  # Filter users with role='admin'
+        required=False,  # If optional
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Assigned Admin"
+    )
 
     class Meta:
         model = Form
         fields = [
             'title', 'sender', 'sender_signature', 'receiver', 'receiver_signature',
-            'content', 'priority', 'tags', 'categories', 'assigned_users', 'assigned_managers', 'allowed_managers'
+            'content', 'priority', 'tags', 'categories', 'assigned_users', 'assigned_managers', 'allowed_managers','assigned_admin'
         ]
 
     def clean_assigned_managers(self):

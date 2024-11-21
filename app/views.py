@@ -89,7 +89,11 @@ def admin_search_forms(request):
 @login_required
 def my_forms(request):
     user = request.user
-    forms = Form.objects.filter(sender=user).select_related('category').prefetch_related('tags')
+
+    # Show forms where the user is the sender or assigned manager
+    forms = Form.objects.filter(
+        Q(sender=user) | Q(assigned_managers=user)
+    ).select_related('category').prefetch_related('tags')
 
     return render(request, 'form/my_forms.html', {'forms': forms})
 
@@ -117,13 +121,15 @@ def homepage(request):
 logger = logging.getLogger(__name__)
 
 
+from django import forms
+
 @login_required
 def create_form(request):
     # Check if the logged-in user is an admin
     if request.user.role == "admin":
-        # Admins can access all users and managers
         assigned_managers = CustomUser.objects.filter(role="manager").exclude(id=request.user.id).distinct()
         assigned_users = CustomUser.objects.filter(role="user").exclude(id=request.user.id).distinct()
+        assigned_admins = CustomUser.objects.filter(role="admin").exclude(id=request.user.id).distinct()
     else:
         # Get the logged-in user's categories
         user_categories = request.user.usercategorymembership_set.values_list('category', flat=True)
@@ -146,9 +152,16 @@ def create_form(request):
         else:
             assigned_users = CustomUser.objects.none()  # Empty queryset if no sub-role
 
+        # Assigned Admins for non-admin users (if applicable)
+        assigned_admins = CustomUser.objects.filter(
+            role='admin',
+            usercategorymembership__category__in=user_categories
+        ).exclude(id=request.user.id).distinct()  # Exclude the logged-in user
+
     # Debugging: Check the assigned users and managers after filtering
     print(f"Assigned Managers: {assigned_managers}")
     print(f"Assigned Users: {assigned_users}")
+    print(f"Assigned Admins: {assigned_admins}")
 
     # Get all tags and categories from the database
     tags = Tag.objects.all()
@@ -157,17 +170,22 @@ def create_form(request):
     # Handle form submission
     if request.method == 'POST':
         form = FormCreationForm(request.POST, user=request.user)  # Pass logged-in user to form
+
+        if request.user.role == "manager":
+            # Make assigned_managers field optional for managers
+            form.fields['assigned_managers'].required = False
+
         if form.is_valid():
             try:
                 # Save form instance without committing to get the instance ID
                 form_instance = form.save(commit=False)
                 form_instance.save()  # Save to generate ID
-                
+
                 # Set ManyToMany and ForeignKey relationships after saving the form instance
                 tags_selected = form.cleaned_data.get('tags')
                 if tags_selected:
                     form_instance.tags.set(tags_selected)  # Set tags to the form
-                
+
                 category_selected = form.cleaned_data.get('category')
                 if category_selected:
                     form_instance.category = category_selected  # Set category
@@ -176,12 +194,18 @@ def create_form(request):
                 assigned_managers_selected = form.cleaned_data.get('assigned_managers')
                 if assigned_managers_selected:
                     form_instance.assigned_managers.set(assigned_managers_selected)  # Assign managers
-               
+
                 # Handle added users (ManyToManyField) only if user has the sub-role
                 if request.user.sub_role == "user-access-to-all-users-with-role-user":
                     added_users_selected = form.cleaned_data.get('added_users')
                     if added_users_selected:
                         form_instance.added_users.set(added_users_selected)  # Assign users to the form
+
+                # Handle assigned admins manually (instead of using form's ManyToManyField)
+                selected_admin_id = request.POST.get('assign_admin')  # Get the admin ID from the form
+                if selected_admin_id:
+                    selected_admin = CustomUser.objects.get(id=selected_admin_id)
+                    form_instance.assigned_admins.add(selected_admin)  # Add selected admin
 
                 form_instance.save()  # Save again to commit ManyToMany and ForeignKey fields
 
@@ -199,11 +223,23 @@ def create_form(request):
         # Initialize the form with the logged-in user instance
         form = FormCreationForm(user=request.user)
 
+    # Collect the IDs of the assigned admins for selection
+    assigned_admins_ids = [admin.id for admin in assigned_admins]
+
+    # Get all admins for manager role
+    if request.user.role == "manager":
+        all_admins = CustomUser.objects.filter(role="admin").exclude(id=request.user.id).distinct()
+    else:
+        all_admins = CustomUser.objects.none()  # You can adjust based on your logic for non-managers
+
     # Render the form creation page with all necessary context
     return render(request, 'form/create_form.html', {
         'form': form,
         'assigned_users': assigned_users,  # Filtered users or empty queryset
         'assigned_managers': assigned_managers,  # Filtered managers
+        'assigned_admins': assigned_admins,  # Filtered admins
+        'assigned_admins_ids': assigned_admins_ids,  # Assigned admins IDs for pre-selection
+        'all_admins': all_admins,  # All admins for manager to select
         'tags': tags,
         'categories': categories,  # Display categories for filtering
         'user': request.user,  # Pass logged-in user to template for context
