@@ -30,7 +30,7 @@
         </div>
 
         <!-- Form for Assigning Allowed Managers -->
-        {% if user.role == 'manager' %}
+        {% if user.role == 'manager' or user.role == 'admin' %}
             <form method="post" class="assign-form">
                 {% csrf_token %}
                 

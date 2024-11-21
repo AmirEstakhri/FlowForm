@@ -20512,3 +20512,211 @@ Traceback (most recent call last):
                              ^^^^^^^^^^^^^^
 UnboundLocalError: cannot access local variable 'assigned_users' where it is not associated with a value
 "GET /create/ HTTP/1.1" 500 70243
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70332
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388
+Internal Server Error: /send/72/
+Traceback (most recent call last):
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\my_env\Lib\site-packages\django\contrib\auth\decorators.py", line 60, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\djangoproject\Dabirkhane\sayad\app\views.py", line 494, in send_form
+    if form.sender and form.sender.role == 'manager':
+                       ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'role'
+"GET /send/72/ HTTP/1.1" 500 70388

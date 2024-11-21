@@ -99,7 +99,7 @@
                             <a href="{% url 'form_detail' form.id %}" class="btn-action">View</a> |
 
                             <!-- Show Verify Button if the user is an assigned or allowed manager -->
-                            {% if request.user in form.assigned_managers.all or request.user in form.allowed_managers.all %}
+                            {% if request.user in form.assigned_managers.all or request.user in form.allowed_managers.all or request.user in form.assigned_admins.all %}
                                 {% if form.has_verified %}
                                     <!-- Show message if the user has already verified -->
                                     <span class="btn-action" style="color: gray;">You have done your verification</span> |

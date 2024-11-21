@@ -350,30 +350,33 @@ def is_admin_or_manager(user):
 
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Form
+
 @login_required
 def verify_form(request, form_id):
     form = get_object_or_404(Form, id=form_id)
 
-    # Check if the user is an assigned or allowed manager
-    if request.user not in form.assigned_managers.all() and request.user not in form.allowed_managers.all():
+    # Check if the user is an assigned or allowed manager or an assigned admin
+    if request.user not in form.assigned_managers.all() and request.user not in form.allowed_managers.all() and request.user not in form.assigned_admins.all():
         messages.error(request, 'You do not have permission to verify this form.')
         return redirect('form_list')
 
-    # If the form has not been verified, mark it as verified by the first manager
+    # If the form has not been verified, mark it as verified by the user (manager or admin)
     if not form.verified:
         form.verified = True
-        form.verified_by = request.user  # Mark this manager as the one who verified the form
+        form.verified_by = request.user  # Mark this user as the one who verified the form
         form.verification_logs.create(verified_by=request.user, action="Form verified and completed")
         form.save()
         messages.success(request, 'Form successfully verified and marked as completed.')
     else:
         # If the form is already verified, log the new verification attempt
-        form.verification_logs.create(verified_by=request.user, action="Manager verified the form")
-
+        form.verification_logs.create(verified_by=request.user, action="Form verification attempt by manager or admin")
         messages.success(request, 'Your verification has been logged.')
 
     return redirect('form_list')
-
 
 
 def is_admin_or_manager(user):
@@ -449,10 +452,16 @@ def user_login(request):
 
 
 
+
 @login_required
 def send_form(request, form_id):
     form = get_object_or_404(Form, id=form_id)
     user = request.user
+
+    # Check if the user is allowed to send the form (either the sender, or a manager/admin)
+    if form.sender != user and not (user in form.assigned_managers.all() or user in form.allowed_managers.all() or user in form.assigned_admins.all()):
+        messages.error(request, "You do not have permission to send this form.")
+        return redirect('form_list')
 
     if request.method == 'POST':
         # Prevent the form from being sent to the current user
@@ -491,7 +500,6 @@ def send_form(request, form_id):
         'form': form,
         'allowed_managers': allowed_managers,
     })
-
 
 @login_required
 def revert_version(request, form_id, version_number):
