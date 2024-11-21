@@ -10,6 +10,19 @@ from django.contrib.auth import login, logout, authenticate
 from app.utils import is_manager  # Assuming `is_manager` is a utility function to check roles
 import logging
 from user_categories.models import UserCategoryMembership
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Form, Tag, Category
+from .forms import FormEditForm
+
+@login_required
+def my_forms(request):
+    user = request.user
+    forms = Form.objects.filter(sender=user).select_related('category').prefetch_related('tags')
+
+    return render(request, 'form/my_forms.html', {'forms': forms})
+
 
 # Check if user is a manager
 def is_manager(user):
@@ -324,37 +337,35 @@ def form_detail(request, form_id):
 def is_manager(user):
     return user.role == 'manager' or user.role == 'user'
 
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Form, Tag, Category
+from .forms import FormCreateUpdateForm  # Reuse or create a separate form class for both creating and updating
+
 @login_required
-@user_passes_test(is_manager)
 def edit_form(request, form_id):
-    form = get_object_or_404(Form, id=form_id)
-    
-    # Check if the user is allowed to edit this form
-    user_is_form_owner = form.sender == request.user.username
-    form_is_verified = form.verified
+    # Fetch the form object by ID
+    form_instance = get_object_or_404(Form, id=form_id, sender=request.user)
 
-    # If the form is verified, only the 'Priority' field is editable
-    restricted = form_is_verified or not user_is_form_owner
-    if form_is_verified:
-        messages.warning(request, 'This form is verified and can only have its priority updated.')
-    elif not user_is_form_owner:
-        messages.warning(request, 'You are not authorized to edit this form.')
+    if form_instance.verified:
+        messages.error(request, "You cannot edit a verified form.")
+        return redirect('my_forms')
 
-    # Handle the form submission
+    # Handle form submission
     if request.method == 'POST':
-        if restricted:
-            form_form = FormCreationForm(request.POST, instance=form, user=request.user, restricted=restricted)
+        form = FormCreateUpdateForm(request.POST, instance=form_instance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Form updated successfully!')
+            return redirect('my_forms')
         else:
-            form_form = FormCreationForm(request.POST, instance=form, user=request.user)
-
-        if form_form.is_valid():
-            form_form.save()
-            messages.success(request, 'Form updated successfully.')
-            return redirect('form_list')
+            messages.error(request, 'There were errors updating the form. Please try again.')
     else:
-        form_form = FormCreationForm(instance=form, user=request.user, restricted=restricted)
+        # Prepopulate the form with the instance
+        form = FormCreateUpdateForm(instance=form_instance)
 
-    return render(request, 'form/edit_form.html', {'form': form_form})
+    return render(request, 'form/edit_form.html', {'form': form, 'form_instance': form_instance})
 
 
 

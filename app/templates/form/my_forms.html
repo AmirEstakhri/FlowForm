@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}My Forms{% endblock %}
+
+{% block content %}
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <h1 style="text-align: center; margin-bottom: 20px;">My Forms</h1>
+
+        <!-- Display messages if any -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}" style="color: white; background-color: red; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- List of Forms -->
+        {% if forms %}
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead style="background-color: #f4f4f4;">
+                    <tr>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Title</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Priority</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Category</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Tags</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in forms %}
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">{{ form.title }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">{{ form.priority }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">{{ form.category.name }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                {% for tag in form.tags.all %}
+                                    {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                {% if not form.verified %}
+                                    <a href="{% url 'edit_form' form.id %}" style="color: #4CAF50; text-decoration: none; padding: 5px 10px; border: 1px solid #4CAF50; border-radius: 5px;">Edit</a>
+                                {% else %}
+                                    <span style="color: green; font-weight: bold;">Verified</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="margin-top: 20px; font-size: 16px;">You haven't sent any forms yet.</p>
+        {% endif %}
+
+        <a href="{% url 'homepage' %}" style="display: block; margin-top: 30px; color: #2196F3; text-decoration: none; font-weight: bold; padding: 10px;">Back to Homepage</a>
+    </div>
+{% endblock %}

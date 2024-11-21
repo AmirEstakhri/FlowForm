@@ -22,13 +22,14 @@
 
             <!-- Navbar Links -->
             <ul class="navbar-nav">
-                <li><a href="{% url 'form_list' %}" class="{% if request.path == '/form-list/' %}active{% endif %}">My Forms</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
                 <li><a href="{% url 'create_form' %}" class="nav-link">Create a New Form</a></li>
                 <li><a href="{% url 'form_list' %}" class="nav-link">View All Forms</a></li>
                 <li><a href="{% url 'admin:index' %}" class="nav-link">Admin Dashboard</a></li>
                 <li><a href="{% url 'assigned_forms' %}" class="nav-link">View Assigned Forms</a></li>
                 <li><a href="{% url 'userprofile:view_profile' %}" class="nav-link">Profile</a></li>
+                <li><a href="{% url 'my_forms' %}" class="{% if request.path == '/my-forms/' %}active{% endif %}">My Forms</a></li>
+
             </ul>
         </div>
     </header>

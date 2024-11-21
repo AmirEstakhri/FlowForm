@@ -22,6 +22,7 @@ urlpatterns = [
     path('forms/assigned-to-manager/', views.forms_assigned_to_manager, name='forms_assigned_to_manager'),
     path('logout/', custom_logout, name='logout'),  # Add this path with the name 'logout'
     path('form/<int:form_id>/', views.form_detail, name='form_detail'),
+    path('my-forms/', views.my_forms, name='my_forms'),  # Define the 'my_forms' route
 
 
     

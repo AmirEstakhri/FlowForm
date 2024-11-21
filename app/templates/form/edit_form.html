@@ -1,60 +1,57 @@
-{% load static %}
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Form</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body>
-    <div class="container">
-        <h1>Edit Form</h1>
+{% block title %}Edit Form{% endblock %}
 
-        <form method="post">
+{% block content %}
+    <div class="container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h1>Edit Form: {{ form_instance.title }}</h1>
+
+        <!-- Display messages if any -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}" style="color: red; padding: 10px; border: 1px solid red; margin-bottom: 20px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Form -->
+        <form method="post" class="form" style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
             {% csrf_token %}
-
-            <div class="form-group">
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title" value="{{ form.title }}" {% if form.title.disabled %}disabled{% endif %} required>
+            
+            <!-- Form Title -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="id_title" style="font-weight: bold;">Form Title:</label>
+                {{ form.title }}
             </div>
 
-            <div class="form-group">
-                <label for="content">Content:</label>
-                <textarea id="content" name="content" rows="4" {% if form.content.disabled %}disabled{% endif %}>{{ form.content }}</textarea>
+            <!-- Tags -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="id_tags" style="font-weight: bold;">Tags:</label>
+                {{ form.tags }}
             </div>
 
-            <div class="form-group">
-                <label for="priority">Priority:</label>
-                <select id="priority" name="priority" {% if form.priority.disabled %}disabled{% endif %} required>
-                    <option value="high" {% if form.priority == 'high' %}selected{% endif %}>High</option>
-                    <option value="medium" {% if form.priority == 'medium' %}selected{% endif %}>Medium</option>
-                    <option value="low" {% if form.priority == 'low' %}selected{% endif %}>Low</option>
-                </select>
+            <!-- Priority -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="id_priority" style="font-weight: bold;">Priority:</label>
+                {{ form.priority }}
             </div>
 
-            <div class="form-group">
-                <label for="assigned_manager">Assigned Manager:</label>
-                <select id="assigned_manager" name="assigned_manager" required {% if form.assigned_manager.disabled %}disabled{% endif %}>
-                    {% for manager in form.assigned_manager.field.queryset %}
-                        <option value="{{ manager.id }}" {% if form.assigned_manager.value == manager.id %}selected{% endif %}>{{ manager.username }}</option>
-                    {% endfor %}
-                </select>
+            <!-- Category -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="id_category" style="font-weight: bold;">Category:</label>
+                {{ form.category }}
             </div>
 
-            <div class="form-group">
-                <label for="allowed_managers">Other Managers:</label>
-                <select id="allowed_managers" name="allowed_managers" multiple {% if form.allowed_managers.disabled %}disabled{% endif %}>
-                    {% for manager in form.allowed_managers.field.queryset %}
-                        <option value="{{ manager.id }}" {% if manager.id in form.allowed_managers.value %}selected{% endif %}>{{ manager.username }}</option>
-                    {% endfor %}
-                </select>
+            <!-- Submit Button -->
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px;">
+                    Update Form
+                </button>
+                <a href="{% url 'my_forms' %}" class="btn btn-secondary" style="background-color: #f44336; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-left: 10px;">
+                    Cancel
+                </a>
             </div>
-
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="{% url 'form_list' %}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
-</body>
-</html>
+{% endblock %}

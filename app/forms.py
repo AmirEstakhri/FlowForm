@@ -3,6 +3,31 @@
 from django import forms
 from .models import Form, Tag, Category, CustomUser
 
+from django import forms
+from .models import Form
+
+class FormEditForm(forms.ModelForm):
+    class Meta:
+        model = Form
+        fields = ['tags', 'priority', 'category']  # Removed 'sender_signature'
+        widgets = {
+            'tags': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'priority': forms.TextInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+from django import forms
+from .models import Form
+
+class FormCreateUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Form
+        fields = ['title', 'tags', 'priority', 'category']  # Adjust fields as needed
+        widgets = {
+            'tags': forms.CheckboxSelectMultiple(),
+            'category': forms.Select(),
+        }
+
 class FormCreationForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -127,3 +152,4 @@ class ProfilePictureForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['profile_image']
+
