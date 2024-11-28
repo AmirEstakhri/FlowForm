@@ -1,7 +1,7 @@
 from flow is a  app where there is a assing site  , what we do here is this , first we have 3  type of user , normal user , manager and admin 
 
 user  cerate a form  
-evey user is in a group , where the can send form to the manager of that group , and also if the have sub role for sending the form to other user they can but only if they are  in thee same group as them ,
+evey user is in a group , where the can send form to the manager of that group , and  also  only if the have sub role for sending the form to other user they can but only if they are  in the same group as them ( user can not assing other users to seee the form if they are not the same gp ),
 evey group can only have 1 manager 
 users that have the  sub role , can assing other users , but other users can only seee the form and not do any thing els
 when the from is send by user , it auto add the date that when the form is sended , and who is the sender
