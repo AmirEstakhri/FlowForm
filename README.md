@@ -1,21 +1,40 @@
-from flow is a  app where there is a assing site  , what we do here is this , first we have 3  type of user , normal user , manager and admin 
+# 📝 FlowForm
 
-user  cerate a form  
-evey user is in a group , where the can send form to the manager of that group , and  also  only if the have sub role for sending the form to other user they can but only if they are  in the same group as them ( user can not assing other users to seee the form if they are not the same gp ),
-evey group can only have 1 manager 
-users that have the  sub role , can assing other users , but other users can only seee the form and not do any thing els
-when the from is send by user , it auto add the date that when the form is sended , and who is the sender
-user can edit the form befor it get verifiy , but wheen it gets verifiy, user can not edit it (there is section that user can see how many from is sended byb him and in what stats thee from is )
-user can not assing admin, or otheer managers of other parts , he can  only send the form to his manageer 
+**FlowForm** is a dynamic and collaborative platform for managing workflows, handling form submissions, assigning users/managers, and streamlining the verification process. Designed for teams and organizations, it supports multi-user role functionality and customizable form assignments to enhance task delegation and approval workflows.
 
+---
 
-now for manager part,
-manageer can verifiy the from and he can also send the form to other managers or admin if needed for they verifiy also , 
-he can assing as many as manager as he want to the from so the can also verifiy the from , and there is a log , for evey verifity on the form , so it tracks when thee from verifyed , by who , and what time 
-he can only send the from to admin 
+## 🚀 Features:
+### 🔹 User Roles:
+1. **Normal User**:
+   - Create forms and send them to the manager of their group.
+   - Assign forms to other users within the same group, provided they have the required sub-role.
+   - Track the status of sent forms (e.g., pending, verified).
+   - Edit forms before verification but cannot modify them once verified.
+   - View submission logs, including the submission date and sender details.
+   - Cannot assign forms to admins or managers outside their group.
 
-for admin  part, 
-admin can do all , cerate user ,edit from , add tags m remove users  , place user and managers in groups , and so on , so admin can do all 
+2. **Manager**:
+   - Verify forms submitted by users within their group.
+   - Assign forms to other managers or admins for additional verification if needed.
+   - Log every verification action, capturing the verifier's name and timestamp.
+   - Assign other managers to a form to share verification responsibilities.
+   - Manage forms within their assigned group.
 
+3. **Admin**:
+   - Full control over the system:
+     - Create, edit, and delete users.
+     - Manage groups by assigning users and managers.
+     - Edit or tag forms as needed.
+     - Access logs for all forms and verification processes.
+   - Oversee and manage the workflow across all groups.
 
+---
+
+## 🛠️ Technologies Used:
+- **Backend**: Python (Django framework)  
+- **Frontend**: HTML, CSS, JavaScript  
+- **Database**: SQLite (customizable to PostgreSQL or others)  
+
+---
 
